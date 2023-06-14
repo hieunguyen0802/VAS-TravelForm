@@ -1,0 +1,41 @@
+﻿@using src.Core
+@using src.Web.Common.Models.SettingViewModels
+@{
+    ViewData["Title"] = Constants.MainPages.Settings;
+}
+
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        <i class="fa fa-cog" aria-hidden="true"></i> @ViewData["Title"]
+    </h1>
+    <div class="pull-right">
+        <button id="clear-cache-button" type="submit" class="btn btn-primary">
+            <i class="fa fa-refresh" aria-hidden="true"></i> Clear Cache
+        </button>
+    </div>
+</div>
+
+<div class="content">
+</div>
+
+<script type="text/javascript">
+
+    $(function() {
+        $("#clear-cache-button").click(function () {
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Url.Action("ClearCache", "Settings")",
+                success: function (data) {
+                    var grid = $("#settingGrid").data("kendoGrid");
+                    grid.dataSource.read();
+                    window.alerts.success('Cache was cleared successfully.');
+                },
+                error: function () {
+                    window.alerts.success('Failed to clear cache.');
+                }
+            });
+        });
+    });
+
+</script>

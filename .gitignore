@@ -1,0 +1,49 @@
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+nupkg/
+
+# Visual Studio Code
+.vscode
+
+# Rider
+.idea
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Visual Studio 2015
+.vs/
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/js/kendo.all.min.js
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/js/kendo.all.min.js.map
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/js/kendo.aspnetmvc.min.js
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/js/kendo.aspnetmvc.min.js.map
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/kendo.bootstrap.min.css
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/kendo.bootstrap.min.css.map
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/kendo.common-bootstrap.min.css
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/kendo.common-bootstrap.min.css.map
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/fonts/glyphs/KendoUIGlyphs.eot
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/fonts/glyphs/KendoUIGlyphs.svg
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/fonts/glyphs/KendoUIGlyphs.ttf
+Presentation/Asp.Web/wwwroot/lib/kendo-ui/styles/fonts/glyphs/KendoUIGlyphs.woff

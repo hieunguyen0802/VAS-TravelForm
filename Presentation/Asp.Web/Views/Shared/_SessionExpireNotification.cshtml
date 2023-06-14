@@ -1,0 +1,78 @@
+@using src.Core
+@using Microsoft.Extensions.Options
+@using src.Web.Common
+
+@inject IUserSession UserSession
+@inject IOptions<AppSettings> AppSettings
+
+@if (UserSession.IsAuthenticated)
+{
+
+    <script>
+
+        var notificationInterval,
+            logoutInterval,
+            logoutCounterSpan;
+
+        function startNotificationCounter() {
+            var counter = @AppSettings.Value.CookieAuthentication.ExpireMinutes;
+            notificationInterval = setInterval(function() {
+                    counter--;
+                    if (counter === @AppSettings.Value.CookieAuthentication.SessionExpireNotificationMinutes) {
+                        $("#SessionExpireNotification").data("kendoWindow").center().open();
+                        startLogoutCounter();
+                    }
+                },
+                60000);
+        }
+
+        function startLogoutCounter() {
+            var counter = @(AppSettings.Value.CookieAuthentication.SessionExpireNotificationMinutes*60);
+            logoutInterval = setInterval(function() {
+                    counter--;
+                    if (counter < 0) {
+                        $("#logoutForm").submit();
+                    } else {
+                        var m = Math.floor(counter / 60);
+                        var s = Math.floor(counter % 60);
+                        var mDisplay = m < 10 ? "0" + m : m;
+                        var sDisplay = s < 10 ? "0" + s : s;
+                        logoutCounterSpan.text(mDisplay + ":" + sDisplay);
+                    }
+                },
+                1000);
+        }
+
+        function resetCounters() {
+            clearInterval(notificationInterval);
+            clearInterval(logoutInterval);
+            logoutCounterSpan.text("0@(AppSettings.Value.CookieAuthentication.SessionExpireNotificationMinutes):00");
+            startNotificationCounter();
+        }
+
+        function onSessionExpireNotificationClose() {
+            resetCounters();
+        }
+
+        $(function() {
+            logoutCounterSpan = $("#logout-counter-span");
+
+            startNotificationCounter();
+
+            $("#stay-logged-in-button").click(function() {
+                $.get("@Url.Action("Index", "KeepAlive", new {area = ""})",
+                    null,
+                    function(data) {
+                        resetCounters();
+                        $("#SessionExpireNotification").data("kendoWindow").center().close();
+                    }
+                );
+            });
+
+            $("#signout-button").click(function() {
+                $("#logoutForm").submit();
+            });
+        });
+
+    </script>
+}

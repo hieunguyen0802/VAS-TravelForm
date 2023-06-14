@@ -1,0 +1,219 @@
+﻿
+@model src.Core.Domains.RedZoneFollowUp
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/plug-ins/1.10.24/dataRender/datetime.js"></script>
+
+<div class="box box-danger">
+    <div class="box-header with-border">
+        <i class="fa fa-eye" aria-hidden="true"></i> Red Zone Follow Up
+    </div>
+
+
+    <div class="row">
+        <div class="box-body">
+            <div class="form-group form-horizontal">
+                <label class="control-label col-lg-2 text-right">Vùng Dịch / <span class="text-bold text-purple"><i>Red Zone</i></span> </label>
+                <div class="col-lg-10">
+                    <select id="redZone" class="form-control select2" style="width: 100%;">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    <div class="row col-lg-12">
+        <span><label class="control-label text-red text-bold pull-left" style="padding-left:20px">Red Zone Travelling List</label></span>
+        <a id="export" class="text-bold pull-right">Export</a>    </div>
+    <br>
+    <div class="box-body">
+        <table class="table table-striped" id="redZoneFollowList">
+            <thead>
+                <tr>
+                    <th class="col-md-1">Số thứ tự / No.</th>
+                    <th class="col-md-1">Số yêu cầu / Request ID</th>
+                    <th class="col-md-3">Nhân viên / Employee</th>
+                    <th class="col-md-1">Ngày gửi / Submitted Date</th>
+                    <th class="col-md-2">Vị trí / Position</th>
+                    <th class="col-md-1">Cơ sở / Campus</th>
+                    <th class="col-md-1">Tình trạng / Req. Status</th>
+                    <th class="col-md-1">Đơn khai báo y tế / Incident</th>
+                    <th class="col-md-1">Theo dõi / Follow up</th>
+                    <th class="col-md-1">Liên quan / Related</th>
+                    <th class="col-md-1">Hành động / Action</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+
+<script>
+    $(".select2").select2();
+
+    $.ajax({
+        type: "GET",
+        url: '/BaseCategory/getRedZoneInfo',
+        contentType: "application/json",
+        dataType: "json",
+        success: function (data) {
+            $('#redZone')
+            for (var i = 0; i < data.length; i++) {
+                $('#redZone')
+                    .append($("<option></option>")
+                        .attr("value", data[i].Code)
+                        .text(data[i].CategoryName));
+            }
+        }
+    });
+
+    $('#redZone').on('select2:select', function (e) {
+        var test = e.params.data;
+        var id = ($('.select2')).serializeArray();
+        id.push(($('#redZone').val()).toString());
+
+        $.ajax({
+            type: "GET",
+            url: "/Administration/RedZoneFollowUp/GetFollowList",
+            data:
+                { id: test.id }
+            ,
+            traditional: true,
+            contentType: "application/json; charset=utf-8", // content type sent to server
+            dataType: "json", // Expected data format from server
+            processdata: true, // True or False
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                ShowLoadingMessage();
+            },
+            success: function (data) {
+                console.log(data);
+                var arr = Object.values(data);
+                console.log(arr[0]);
+                if ($.fn.DataTable.isDataTable("#redZoneFollowList")) {
+                    $('#redZoneFollowList').DataTable().clear().destroy();
+                }
+                var dt = $("#redZoneFollowList").dataTable({
+
+                    "data": arr[0],
+                    "columns": [
+                        {
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+                        {
+                            "data": "travelId",
+                            "render": function (data, type, full, meta) {
+                                return "<a href='/TravelDeclaration/Edit/" + data + "')>" + full.RequestId + "</a>"
+                            }
+                        },
+                        { "data": "Employee" },
+                        {
+                            "data": "submittedDate"
+                        },
+                        { "data": "Position" },
+                        { "data": "Campus" },
+                        {
+                            "data": "status",
+                            "render": function (data, type, full, meta) {
+
+                                if (full.status == '1') {
+                                    return '<span class="label label-warning"> Submitted </span >'
+                                }
+                                if (full.status == '2') {
+                                    return '<span class="label label-primary"> Verified</span >'
+                                }
+                                if (full.status == '3') {
+                                    return '<span class="label label-danger"> Rejected</span >'
+                                }
+                                if (full.status == '4') {
+                                    return '<span class="label label-success"> Approved</span >'
+                                }
+                                if (full.status == '5') {
+                                    return '<span class="label label-danger"> Rejected</span >'
+                                }
+
+                                if (full.status == '9') {
+                                    return '<span class="label label-default">Cancelled</span >'
+                                }
+
+                            }
+                        },
+                        {
+                            "data": "IncidentReportId",
+                            "render": function (data, type, full, meta) {
+                                if (data == null) {
+                                    return '<span> </span >'
+                                } else {
+                                    return "<a href='/CovidIncident/Edit/" + data + "')>" + full.incidentRequest + "</a>";
+                                }
+                            },
+                        },
+                        {
+                            "data": "isFollowUp",
+                            "render": function (data, type, full, meta) {
+                                if (full.isFollowUp == true) {
+                                    return '<span> Yes </span >'
+                                } else {
+                                    return '<span> No </span >'
+                                }
+                            },
+                        },
+                        {
+                            "data": "isRelated",
+                            "render": function (data, type, full, meta) {
+                                if (full.isRelated == true) {
+                                    return '<span> Yes </span >'
+                                } else {
+                                    return '<span> No </span >'
+                                }
+                            },
+                        },
+                        {
+                            "data": "RedZoneFollowUpId",
+                            "render": function (data) {
+                                return "<a class='btn bg-light-blue-gradient btn-xs bnt-flat' target='_blank' href='/Administration/RedZoneFollowUp/Edit/ " + data + "')><i class='fa fa-file-text-o'></i> Details</a>";
+                            },
+                        }
+                    ],
+                    "columnDefs": [{
+                        "searchable": false,
+                        "orderable": false,
+                        "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+
+
+
+                    },
+                    {
+                        targets: 3, render: function (data) {
+                            return moment(data).format('DD/MM/YYYY');
+                        }
+                    },
+                    ],
+                    "orderFixed": [0, 'asc'],
+
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
+                HideLoadingMessage();
+            },
+            complete: function (data) {
+                HideLoadingMessage();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                ShowMessageError("Error!!! Please check your form again");
+                HideLoadingMessage();
+            }
+        });
+    });
+
+    $("#export").click(function (e) {
+        location.href = "/Administration/RedZoneFollowUp/ExportExcel?id=" + $("#redZone").val();
+    });
+
+
+</script>

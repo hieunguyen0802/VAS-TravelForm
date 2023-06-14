@@ -1,0 +1,68 @@
+﻿@using src.Core
+@using src.Web.Areas.HRBP.Controllers
+@using src.Web.Common
+@using Microsoft.Extensions.Options
+
+@inject IUserSession UserSession
+@inject IOptions<AppSettings> AppSettings
+@using src.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> SharedLocalizer
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"]</title>
+    @await Html.PartialAsync("_StylesScriptsPartial")
+    <style type="text/css">
+        .container {
+            width: auto !important;
+        }
+    </style>
+</head>
+<body class="fixed skin-red-light sidebar-mini">
+    <div class="alert-container"></div>
+    <div class="wrapper">
+        <header class="main-header">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="logo">
+                <span class="logo-mini">VAS</span>
+                <span class="logo-lg">VAS - Travel Approval System</span>
+            </a>
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        @await Html.PartialAsync("_LoginPartial")
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                @await Html.PartialAsync("/Areas/HRBP/Views/Shared/_MenuPartial1.cshtml")
+            </section>
+        </aside>
+        <div class="content-wrapper">
+            <div class="container">
+                <section class="content">
+                    @RenderBody()
+                </section>
+            </div>
+        </div>
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> @AppSettings.Value.Application.Version
+            </div>
+            <strong class="pull-left"> @SharedLocalizer["VAS"]</strong>
+            <br />
+        </footer>
+    </div>
+
+    @await Html.PartialAsync("_Alerts")
+</body>
+</html>
+@RenderSection("Scripts", required: false)

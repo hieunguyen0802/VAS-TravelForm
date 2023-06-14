@@ -1,0 +1,314 @@
+﻿@using src.Core.Enums;
+@model src.Web.Common.Models.UserViewModels.UserCreateUpdateViewModel
+@{
+    Layout = null;
+}
+<script src="~/lib/admin-lte/plugins/select2/select2.full.min.js"></script>
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Add / Edit Data</h4>
+</div>
+<form onsubmit="return SubmitAddEdit(this)">
+    <div class="box-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label asp-for="UserName" class="control-label"></label>
+                        <input asp-for="UserName" class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="UserCode" class="control-label"></label>
+                        <input asp-for="UserCode" class="form-control" />
+                        <span asp-validation-for="UserCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="Campus" class="control-label"></label>
+                        <input asp-for="Campus" class="form-control" />
+                        <span asp-validation-for="Campus" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label asp-for="Position" class="control-label"></label>
+                        <input asp-for="Position" class="form-control" />
+                        <span asp-validation-for="Position" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="IsActive" class="control-label"></label>
+                        <select asp-for="IsActive" class="form-control" asp-items="@Model.SelectedStatus">
+                        </select>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label asp-for="CreatedOn" class="control-label"></label>
+                            <div class='input-group date' id='CreatedOn'>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                <input asp-for="CreatedOn" type='text' class="form-control" />
+                            </div>
+                            <span asp-validation-for="CreatedOn" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="CreatedBy" class="control-label"></label>
+                        <input asp-for="CreatedBy" class="form-control" />
+                        <span asp-validation-for="CreatedBy" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="ModifiedBy" class="control-label"></label>
+                        <input asp-for="ModifiedBy" class="form-control" />
+                        <span asp-validation-for="ModifiedBy" class="text-danger"></span>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label asp-for="informed1" class="control-label"></label>
+                        <input asp-for="informed1" class="form-control" />
+                        <span asp-validation-for="informed1" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label asp-for="informed2" class="control-label"></label>
+                        <input asp-for="informed2" class="form-control" />
+                        <span asp-validation-for="informed2" class="text-danger"></span>
+
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label asp-for="informed3" class="control-label"></label>
+                        <input asp-for="informed3" class="form-control" />
+                        <span asp-validation-for="informed3" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label asp-for="informed4" class="control-label"></label>
+                        <input asp-for="informed4" class="form-control" />
+                        <span asp-validation-for="informed4" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label asp-for="informed5" class="control-label"></label>
+                        <input asp-for="informed5" class="form-control" />
+                        <span asp-validation-for="informed5" class="text-danger"></span>
+
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label asp-for="informed6" class="control-label"></label>
+                        <input asp-for="informed6" class="form-control" />
+                        <span asp-validation-for="informed6" class="text-danger"></span>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="linemanager" class="control-label"></label>
+                        <input asp-for="linemanager" class="form-control" />
+                        <span asp-validation-for="linemanager" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="ecsd" class="control-label"></label>
+                        <input asp-for="ecsd" class="form-control" />
+                        <span asp-validation-for="ecsd" class="text-danger"></span>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label asp-for="SelectedRoleIds" class="control-label"></label>
+                        <select asp-for="SelectedRoleIds" class="form-control select2" asp-items="@Model.AvailableRoles" multiple="" name="SelectedRoleIds[]" style="width:100%" required>
+                        </select>
+                        <span asp-validation-for="SelectedRoleIds" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label asp-for="SelectedCampusIds" class="control-label"></label>
+                        <select asp-for="SelectedCampusIds" class="form-control select2" asp-items="@Model.HeadOfDepartment" name="SelectedCampusIds[]" multiple="" style="width:100%">
+                        </select>
+                        <span asp-validation-for="SelectedCampusIds" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="box-footer">
+        <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-save"></i> Submit</button>
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+    </div>
+</form>
+<script>Ladda.bind('.btn', { timeout: 1000 });</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#UserName').blur(function () {
+            if ($('#UserName').val() != '') {
+                $.ajax({
+                    type: "GET",
+                    url: '/api/Users/getFirstLastNameFromAD',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: { userName: $('#UserName').val() },
+                    beforeSend: function (request) {
+                        ShowLoadingMessage();
+                    },
+                    success: function (success) {
+                        if (success.success == true) {
+                            $("#FirstName").val(success.FristName);
+                            $("#LastName").val(success.LastName);
+                            $("#UserCode").val(success.UserCode);
+                            $("#Position").val(success.JobTitle);
+                            $("#Campus").val(success.Campus);
+                            HideLoadingMessage();
+                        } else {
+                            HideLoadingMessage();
+                        }
+                    },
+                    error: function () {
+                        HideLoadingMessage();
+                        ShowMessage(data.messsage);
+                    },
+                    failure: function (data) {
+                        ShowMessage(data.messsage);
+                        HideLoadingMessage();
+                    }
+                });
+            }
+        });
+    })
+    @*$(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: '/BaseCategory/getAllCampusAndDepartment',
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data) {
+                $('#SelectedCampusIds').append($('<option>', { value: 0, text: '-- Select all--' }));
+                for (var i = 0; i < data.length; i++) {
+                    $('#SelectedCampusIds')
+                        .append($("<option></option>")
+                            .attr("value", data[i].Code)
+                            .text(data[i].CategoryName));
+                    var arr = [];
+                    @if (@Model.SelectedCampusIds.Count>0)
+                    {
+                         @foreach (var item in @Model.SelectedCampusIds)
+                          {
+                              <text>
+                                arr.push('@item');
+                            </text>
+                          }
+                    }
+                    $('#SelectedCampusIds').val(arr).trigger('change');
+                }
+            },
+            failure: function (response) {
+
+            },
+            complete: function () {
+                //getPhone($('#Contact').val());
+            }
+        });
+    });*@
+    $(document).ready(function () {
+        $('.select2').select2();
+    })
+    $(function () {
+        $(".datepicker").datepicker();
+        $('#CreatedOn').datepicker('setDate', 'today');
+
+        $(".datepicker").datepicker({
+            onClose: function () {
+                $(this).focus().blur();
+            },
+            format: "mm/dd/yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            todayBtn: true,
+            todayHighlight: true,
+        });
+    });
+</script>

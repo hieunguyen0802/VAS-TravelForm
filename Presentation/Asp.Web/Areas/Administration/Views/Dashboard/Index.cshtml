@@ -1,0 +1,73 @@
+﻿@using src.Core
+@using src.Core.Domains
+@using System.Linq
+@using System
+
+
+@{
+    ViewData["Title"] = Constants.MainPages.Dashboard;
+
+}
+
+<div class="box box-danger">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            <i class="fa fa-table" aria-hidden="true"></i> Dashboard Summary
+        </h1>
+    </div>
+
+
+    <div class="content">
+        <div class="row">
+            <div class="col-md-6">
+                <div id="modelDashboardMoetTravelView"> </div>
+            </div>
+            <div class="col-md-6">
+                <div id="modelDashboardCamTravelView"> </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="modelDashboardMoetCovidView"> </div>
+            </div>
+            <div class="col-md-6">
+                <div id="modelDashboardMCamCovidView"> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    $.ajax({
+        url: '/Administration/Dashboard/DashboardMoetTravel',
+        dataType: 'html',
+        success: function (data) {
+            $('#modelDashboardMoetTravelView').html(data);
+        }
+    });
+    $.ajax({
+        url: '/Administration/Dashboard/DashboardCamTravel',
+        dataType: 'html',
+        success: function (data) {
+            $('#modelDashboardCamTravelView').html(data);
+        }
+    });
+    $.ajax({
+        url: '/Administration/Dashboard/DashboardMoetCovid',
+        dataType: 'html',
+        success: function (data) {
+            $('#modelDashboardMoetCovidView').html(data);
+        }
+    });
+    $.ajax({
+        url: '/Administration/Dashboard/DashboardCamCovid',
+        dataType: 'html',
+        success: function (data) {
+            $('#modelDashboardMCamCovidView').html(data);
+        }
+    });
+</script>

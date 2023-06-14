@@ -1,0 +1,36 @@
+﻿@model IEnumerable<src.Core.Domains.TravelDeclarationDashboardModel>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <h4> Covid Incident's Dashboard Summary for Cambridge</h4>
+        <div class="box-body">
+            <table id="CirCam" name="Covid Incident's Dashboard Summary for Cambridge" class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">Campus/Dept</th>
+                        <th class="col-md-2">Returning From Red Zone</th>
+                        <th class="col-md-2">Contacting with a Sucpect Case</th>
+                        <th class="col-md-1">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Campus</td>
+                                <td>@item.ReturningFromRedZone</td>
+                                <td>@item.ContactingWithSuspectCase</td>
+                                <td>@item.Total</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>

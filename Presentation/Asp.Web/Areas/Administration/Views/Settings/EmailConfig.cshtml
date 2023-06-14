@@ -1,0 +1,74 @@
+﻿@model src.Web.Common.Models.ConfigViewModels.ConfigsEmailViewModel
+<form asp-controller="Settings" asp-action="EmailConfig" method="post" role="form" class="form-horizontal">
+    <div class="col-md-8">
+        <!-- Horizontal Form -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Horizontal Form</h3>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+            <div class="box-body">
+                <div class="form-group">
+                    <label asp-for="forSubmittedId" class="col-sm-4 control-label"></label>
+
+                    <div class="col-sm-8">
+                        <select asp-for="forSubmittedId" asp-items="@Model.listEmails" class="form-control">
+                            <option>Please select one</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="forApprovedId" class="col-sm-4 control-label"></label>
+
+                    <div class="col-sm-8">
+                        <select asp-for="forApprovedId" asp-items="@Model.listEmails" class="form-control">
+                            <option>Please select one</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="forRejectedId" class="col-sm-4 control-label"></label>
+
+                    <div class="col-sm-8">
+                        <select asp-for="forRejectedId" asp-items="@Model.listEmails" class="form-control">
+                            <option>Please select one</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="forRequestToECSDId" class="col-sm-4 control-label"></label>
+
+                    <div class="col-sm-8">
+                        <select asp-for="forRequestToECSDId" asp-items="@Model.listEmails" class="form-control">
+                            <option>Please select one</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="forECSDApprovedId" class="col-sm-4 control-label"></label>
+
+                    <div class="col-sm-8">
+                        <select asp-for="forECSDApprovedId" asp-items="@Model.listEmails" class="form-control">
+                            <option>Please select one</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="forCancelledId" class="col-sm-4 control-label"></label>
+
+                    <div class="col-sm-8">
+                        <select asp-for="forCancelledId" asp-items="@Model.listEmails" class="form-control">
+                            <option>Please select one</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- /.box-body -->
+            <div class="box-footer">
+                <button type="submit" class="btn btn-info pull-right">Save</button>
+            </div>
+            <!-- /.box-footer -->
+        </div>
+    </div>
+</form>

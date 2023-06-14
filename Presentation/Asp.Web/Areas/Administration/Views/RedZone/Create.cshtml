@@ -1,0 +1,352 @@
+﻿@using NonFactors.Mvc.Grid;
+@using src.Core
+@using src.Core.Enums;
+@model src.Web.Common.Models.RedZone.RedZoneModel
+@{
+    ViewBag.Title = "Red Zone";
+}
+
+<script type="text/javascript" src="~/lib/admin-lte/plugins/daterangepicker/moment.js"></script>
+<link rel="stylesheet" href="~/lib/iCheck/all.css">
+<script src="~/lib/iCheck/icheck.min.js"></script>
+<script src="~/lib/DataTables/select/dataTables.select.min.js"></script>
+<link rel="stylesheet" href="~/lib/DataTables/select/select.dataTables.min.css" />
+
+<style>
+    .the-legend {
+        border-style: none;
+        border-width: 0;
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 0;
+    }
+
+    .the-fieldset {
+        border: 2px groove threedface #444;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+
+    .buttonControl {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    button:active {
+        border-style: outset;
+    }
+</style>
+<div class="box box-danger">
+    <div class="box-header with-border">
+        <i class="fa fa-flag" aria-hidden="true"></i> @ViewBag.Title
+    </div>
+
+    <form id="redZoneForm" asp-controller="RedZone" asp-action="CreateRedZone" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form" class="form-horizontal" enctype="multipart/form-data">
+        <div class="box-body">
+            <fieldset id="redZoneField" class="well the-fieldset">
+                <legend class="the-legend"><span class="text-bold text-red pull-left">Create Red Zone</span></legend>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-lg-12">
+                            <label asp-for="redZoneName" class="control-label col-sm-2"> Vùng dịch / Red Zone: </label>
+                            <div class="col-sm-10">
+                                <input type="text" asp-for="redZoneName" class="form-control" required />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label asp-for="redZoneDate" class="control-label col-sm-2">Từ Ngày: </label>
+                            <div class="input-group col-sm-10">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" asp-for="redZoneDate" value="" class="form-control datepickerJquery" required />
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label asp-for="redZoneToDate" class="control-label col-sm-2">Đến Ngày:</label>
+                            <div class="input-group col-sm-10">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" asp-for="redZoneToDate" value="" class="form-control datepickerJquery" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label col-sm-4">Địa điểm:</label>
+                            <div class="col-sm-4">
+                                <input type="radio" asp-for="isDomestic" value="@((int)isDomestic.yes)" class="minimal-red domestic" required checked="checked"> <span style="padding-left:10px;"> Trong nước </span>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="radio" asp-for="isDomestic" value="@((int)isDomestic.no)" class="minimal-red intl" required> <span style="padding-left:10px;"> Ngoài nước </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <label class="control-label col-sm-8">Activate </label>
+                            <div class="input-group col-sm-4">
+                                <input type="checkbox" asp-for="isActivate" value="" class="minimal-red require-one">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="control-label col-sm-10">Dịch trên P. tiện vận chuyển </label>
+                            <div class="input-group col-sm-2">
+                                <input type="checkbox" asp-for="isRedZoneOnTransportation" class="minimal-red require-one">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row">
+                    <div class="col-lg-6" id="redZoneProvinceArea">
+                        <label class="control-label">Tỉnh - Thành </label>
+                        <select asp-for="redZoneProvinceId" class="form-control select2" style="width: 100%;" asp-items="@Model.Provinces" required>
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6" id="redZoneDistrictArea">
+                        <label>Quận - Huyện</label>
+                        <select asp-for="redZoneDistrictId" class="form-control select2" style="width: 100%;" >
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="redZoneDistrictId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6" id="redZoneCountryArea">
+                        <label class="control-label">Quốc gia<span class="field-required">*</span> </label>
+                        <select asp-for="redZoneCountryId" class="form-control select2" style="width: 100%;" asp-items="@Model.Countries">
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6" id="redZoneCityArea">
+                        <label>Thành phố</label>
+                        <input type="text" asp-for="redZoneCity" class="form-control" />
+                        <span asp-validation-for="redZoneCity" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                </br>
+                <div class="row">
+                    <div class="col-lg-6" id="redZoneWardArea">
+                        <label>Xã - Phường</label>
+                        <select asp-for="redZoneWardId" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="redZoneWardId" class="text-danger"></span>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="control-label">Phương tiện </label>
+                        <input type="text" asp-for="redZoneTransportation" class="form-control col-lg-10" required />
+                    </div>
+                </div>
+                </br>
+                <div class="buttonControl">
+                    <button type="submit" id="createRedZone" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Create</button>
+                    <button type="button" id="cancel" class="btn btn-danger btn-sm"><i class="fa  fa-remove"></i> Cancel</button>
+
+                </div>
+            </fieldset>
+
+           
+        </div>
+
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        //select dist.+ ward
+        window.LoadDistrict = function (ProvinceId, DistrictId) {
+            loadDistrict = false
+            console.log("here");
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/getDistrictByProvinceId",
+                data: { provinceId: $("#" + ProvinceId).val() },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                async: false,
+                success: function (data) {
+                    if (data != null) {
+                        $("#" + DistrictId).empty();
+                        $("#" + DistrictId).append($('<option>', { value: "", text: '-- Select one --' }));
+                        $(".selectWard").select2().empty();
+                        $(".selectWard").select2().append($('<option>', { value: "", text: 'Please select one' }));
+                        var array = JSON.parse(JSON.stringify(data));
+                        for (var i = 0; i < array.length; i++) {
+                            $("#" + DistrictId).append($("<option></option>").attr("value", array[i].districtId).text(array[i].name));
+                        }
+                        if ('@Model.redZoneDistrictId' != 0) {
+                            $("#redZoneDistrictId").val('@Model.redZoneDistrictId').trigger("change");
+                            LoadWard("redZoneDistrictId", "redZoneDistrictId");
+                        }
+
+                    }
+                    HideLoadingMessage();
+                }
+            });
+        };
+
+        window.LoadWard = function (DistrictId, WardId) {
+            loadProvine = false;
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/getWardByDistrictId",
+                data: {
+                    DistrictId: $("#" + DistrictId).val()
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                async: false,
+                success: function (data) {
+                    $('#' + WardId).empty();
+                    if (data != null) {
+                        $(".selectWard").select2().append($('<option>', { value: "", text: 'Please select one' }));
+                        var array = JSON.parse(JSON.stringify(data));
+                        for (var i = 0; i < array.length; i++) {
+                            $('#' + WardId).append($("<option></option>").attr("value", array[i].wardId).text(array[i].name));
+                        }
+                        if ('@Model.redZoneWardId' != 0) {
+                            $("#redZoneWardId").val('@Model.redZoneWardId');
+                        }
+                    }
+
+                    HideLoadingMessage();
+                },
+                error: function () {
+                    HideLoadingMessage();
+                }
+            });
+        };
+
+        $("#redZoneProvinceId").on("change", function () {
+            LoadDistrict("redZoneProvinceId", "redZoneDistrictId");
+        });
+
+        $("#redZoneDistrictId").on("change", function () {
+            LoadWard("redZoneDistrictId", "redZoneWardId");
+        });
+
+        //datetime
+        $(document).ready(function () {
+            $(".datepickerJquery").datetimepicker({
+                dayOfWeekStart: 1,
+                lang: 'en',
+                disabledDates: ['1986/01/08', '1986/01/09', '1986/01/10'],
+                startDate: new Date(),
+                format: 'd/m/Y H:i',
+                closeOnDateSelect: true,
+            });
+
+            $(".datepickerJquery").attr("placeholder", "dd/mm/yyyy");
+
+        });
+
+        function FormatDateTimeData(date) {
+            var parts = date.split("/");
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+
+
+        }
+
+        $("#redZoneForm").validate({
+            submitHandler: function (form) {
+                var validDate = new Date(FormatDateTimeData($('#redZoneDate').val().substring(0, 11)));
+                var validToDate = new Date(FormatDateTimeData($('#redZoneToDate').val().substring(0, 11)));
+                if (validDate < validToDate) {
+                    form.submit();
+                } else {
+                    ShowMessageError("Error !!! Please check your form again.");
+                }
+            }
+        });
+
+
+        //buttons
+
+        $("#cancel").click(function () {
+            $('#redZoneForm')[0].reset();
+            $("#redZoneWardId").empty().trigger('change')
+
+        });
+
+ 
+        //trong - ngoài nước - transport: radio + checkbox
+
+        $(document).ready(function () {
+            $('input[name="isDomestic"]').change(function (event) {
+                if (this.value == '@((int)isDomestic.yes)') {
+                    $("div#redZoneProvinceArea").show();
+                    $("div#redZoneDistrictArea").show();
+                    $("div#redZoneWardArea").show();
+                    $("div#redZoneCountryArea").hide();
+                    $("div#redZoneCityArea").hide();
+                    $('#redZoneCountryId').prop('required', false);
+                    $('#redZoneProvinceId').prop('required', true);
+                } else if (this.value == '@((int)isDomestic.no)') {
+                    $("div#redZoneProvinceArea").hide();
+                    $("div#redZoneDistrictArea").hide();
+                    $("div#redZoneWardArea").hide();
+                    $("div#redZoneCountryArea").show();
+                    $("div#redZoneCityArea").show();
+                    $('#redZoneProvinceId').prop('required', false);
+                    $('#redZoneCountryId').prop('required', true);
+                }
+            });
+        });
+
+
+        $(document).on('change', '#isRedZoneOnTransportation', function () {
+            if (this.checked) {
+                $('#redZoneTransportation').prop('disabled', false);
+                $('#redZoneProvinceId').prop('disabled', true);
+                $('#redZoneDistrictId').prop('disabled', true);
+                $('#redZoneWardId').prop('disabled', true);
+                $('#redZoneCountryId').prop('disabled', true);
+                $('#redZoneCity').prop('disabled', true);
+                $('input.domestic').attr("disabled", true);
+                $('input.intl').attr("disabled", true);
+              
+            } else {
+                $('#redZoneTransportation').prop('disabled', true);
+                $('#redZoneProvinceId').prop('disabled', false);
+                $('#redZoneDistrictId').prop('disabled', false);
+                $('#redZoneWardId').prop('disabled', false);
+                $('#redZoneCountryId').prop('disabled', false);
+                $('#redZoneCity').prop('disabled', false);
+                $('input.domestic').attr("disabled", false);
+                $('input.intl').attr("disabled", false);
+                
+            }
+        });
+
+
+        //default behavior
+        $('#redZoneTransportation').prop('disabled', true);
+        $("div#redZoneCountryArea").hide();
+        $("div#redZoneCityArea").hide();
+
+
+    });
+    
+
+</script>

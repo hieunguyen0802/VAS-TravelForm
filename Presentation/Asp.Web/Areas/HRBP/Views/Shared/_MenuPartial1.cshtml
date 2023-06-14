@@ -1,0 +1,31 @@
+﻿@using src.Core
+@using src.Web.Extensions
+@using src.Web.Common
+@using Microsoft.Extensions.Options
+
+@inject IUserSession UserSession
+@inject IOptions<AppSettings> AppSettings
+@using src.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> SharedLocalizer
+
+
+<aside class="main-sidebar">
+    <section class="sidebar">
+       
+        @if (User.Identity.IsAuthenticated && UserSession.IsInRole(Constants.RoleNames.HRBP))
+        {
+        <ul class="sidebar-menu" data-widget="tree">
+            <li class="header">CONFIG</li>
+            <li class="@(Html.IsMenuActive("/HRBP/Dashboard") ? "active" : "")"><a href="~/HRBP/Dashboard"><i class="fa fa-desktop"></i> @Constants.MainPages.Dashboard</a></li>
+            <li class="header">REPORT</li>
+            <li class="@(Html.IsMenuActive("/Report/TravelDeclaration") ? "active" : "")"><a href="~/HRBP/Report/TravelDeclaration"><i class="fa fa-plane"></i> Travel Declaration</a></li>
+            <li class="@(Html.IsMenuActive("/Report/CovidIncident") ? "active" : "")"><a href="~/HRBP/Report/CovidIncident"><i class="fa fa-bug"></i> Covid Incident</a></li>
+            <li class="header">MANAGEMENT</li>
+            <li class="@(Html.IsMenuActive("/Report/TravelDeclaration") ? "active" : "")"><a href="~/HRBP/RedZone/Filter"><i class="fa fa-flag"></i> Red Zone</a></li>
+            <li class="@(Html.IsMenuActive("/Report/CovidIncident") ? "active" : "")"><a href="~/HRBP/RedZoneFollowUp"><i class="fa fa-eye"></i> Red zone Follow Up</a></li>
+            <li class="@(Html.IsMenuActive("/Report/CovidIncident") ? "active" : "")"><a href="~/HRBP/Summary"><i class="fa fa-area-chart"></i> Update History</a></li>
+        </ul>
+        }
+    </section>
+</aside>

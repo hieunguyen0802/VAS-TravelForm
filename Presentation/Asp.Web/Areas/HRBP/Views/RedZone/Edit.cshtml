@@ -1,0 +1,340 @@
+﻿@using NonFactors.Mvc.Grid;
+@using src.Core
+@using src.Core.Enums;
+@model src.Web.Common.Models.RedZone.RedZoneModel
+@{
+    ViewBag.Title = "Report - Covid Incident";
+}
+
+<script src="~/lib/DataTables/select/dataTables.select.min.js"></script>
+<link rel="stylesheet" href="~/lib/DataTables/select/select.dataTables.min.css" />
+<script type="text/javascript" src="~/lib/admin-lte/plugins/daterangepicker/moment.js"></script>
+
+
+<style>
+    .the-legend {
+        border-style: none;
+        border-width: 0;
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 0;
+    }
+
+    .the-fieldset {
+        border: 2px groove threedface #444;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+
+    .buttonControl {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    button:active {
+        border-style: outset;
+    }
+</style>
+<div class="box box-danger">
+    <div class="box-header with-border">
+        <i class="fa fa-flag" aria-hidden="true"></i> @ViewBag.Title
+    </div>
+    <input type="hidden" asp-for="redZoneId" />
+    <form id="redZoneForm" class="form-horizontal" asp-controller="RedZone" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
+
+        <div class="box-body">
+            <fieldset id="redZoneField" class="well the-fieldset">
+                <legend class="the-legend"><span class="text-bold text-red pull-left">Filters</span></legend>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-lg-12">
+                            <label asp-for="redZoneName" class="control-label col-sm-2"> Vùng dịch / Red Zone: </label>
+                            <div class="col-sm-10">
+                                <input type="text" asp-for="redZoneName" class="form-control" disabled />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label asp-for="redZoneDate" class="control-label col-sm-2">Từ Ngày: </label>
+                            <div class="input-group col-sm-10">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" asp-for="redZoneDate" class="form-control datepickerJquery" disabled />
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label asp-for="redZoneToDate" class="control-label col-sm-2">Đến Ngày:</label>
+                            <div class="input-group col-sm-10">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" asp-for="redZoneToDate" class="form-control datepickerJquery" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </br>
+
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label col-sm-4">Địa điểm:</label>
+                            <div class="col-sm-4">
+                                <input type="radio" asp-for="isDomestic" value="@((int)isDomestic.yes)" class="minimal-red domestic" disabled> <span style="padding-left:10px;"> Trong nước </span>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="radio" asp-for="isDomestic" value="@((int)isDomestic.no)" class="minimal-red intl" disabled> <span style="padding-left:10px;"> Ngoài nước </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <label class="control-label col-sm-8">Activate </label>
+                            <div class="input-group col-sm-4">
+                                <input type="checkbox" asp-for="isActivate" class="minimal-red require-one">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="control-label col-sm-10">Dịch trên P. tiện vận chuyển </label>
+                            <div class="input-group col-sm-2">
+                                <input type="checkbox" asp-for="isRedZoneOnTransportation" class="minimal-red require-one" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row">
+                    <div class="col-lg-6" id="redZoneProvinceArea">
+                        <label class="control-label">Tỉnh - Thành<span class="field-required">*</span> </label>
+                        <select asp-for="redZoneProvinceId" class="form-control select2" style="width: 100%;" asp-items="@Model.Provinces" disabled>
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6" id="redZoneDistrictArea">
+                        <label>Quận - Huyện</label>
+                        <select asp-for="redZoneDistrictId" class="form-control select2" style="width: 100%;" asp-items="@Model.Districts" disabled>
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="redZoneDistrictId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6" id="redZoneCountryArea">
+                        <label class="control-label">Quốc gia<span class="field-required">*</span> </label>
+                        <select asp-for="redZoneCountryId" class="form-control select2" style="width: 100%;" asp-items="@Model.Countries" disabled>
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6" id="redZoneCityArea">
+                        <label>Thành phố</label>
+                        <input type="text" asp-for="redZoneCity" class="form-control" disabled />
+                        <span asp-validation-for="redZoneCity" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                </br>
+                <div class="row">
+                    <div class="col-lg-6" id="redZoneWardArea">
+                        <label>Xã - Phường</label>
+                        <select asp-for="redZoneWardId" class="form-control select2" style="width: 100%;" asp-items="@Model.Wards" disabled>
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="redZoneWardId" class="text-danger"></span>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="control-label">Phương tiện <span class="field-required">*</span></label>
+                        <input type="text" asp-for="redZoneTransportation" class="form-control col-lg-10" disabled />
+                    </div>
+                </div>
+                </br>
+
+            </fieldset>
+
+
+            <div class="row col-lg-12">
+                <span><label class="control-label text-red text-bold pull-left">Red Zone Travelling List</label></span>
+                <a id="exportExcel" class="text-bold pull-right">Export</a>
+            </div>
+
+            <table class="table table-striped" id="filterTable">
+                <thead>
+                    <tr>
+                        <th class="col-md-1" style="width: 10px;">No.</th>
+                        <th class="col-md-1 ">Request ID</th>
+                        <th class="col-md-2 ">Requester</th>
+                        <th class="col-lg-1 ">Submitted Date</th>
+                        <th class="col-sm-3 ">Position</th>
+                        <th class="col-md-2 ">Campus</th>
+                        <th class="col-md-1 ">Status</th>
+                        <th class="col-sm-1">Action</th>
+
+                    </tr>
+                </thead>
+            </table>
+
+        </div>
+
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+    var isDomestic = @Html.Raw(Json.Serialize(@Model.isDomestic));
+    var isTransport = @Html.Raw(Json.Serialize(@Model.isRedZoneOnTransportation));
+    var redZoneId = @Html.Raw(Json.Serialize(@Model.redZoneId));
+
+    //excel
+    $("#exportExcel").click(function (e) {
+        location.href = "/HRBP/RedZone/ExportExcelFilterTravelRoute?id=" + $("#redZoneId").val();
+
+    });
+
+
+    $.ajax({
+        type: "GET",
+        url: "/HRBP/RedZone/GetTravelRouteByRedZone",
+        data: { id: redZoneId },
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+            ShowLoadingMessage();
+        },
+        success: function (data) {
+            console.log(data);
+            var arr = Object.values(data);
+            console.log(arr[0]);
+            if ($.fn.DataTable.isDataTable("#filterTable")) {
+                $('#filterTable').DataTable().clear().destroy();
+            }
+            var dt = $("#filterTable").dataTable({
+
+                "data": arr[0],
+                "columns": [
+                    {
+                        "data": null,
+                        "render": function (data, type, full, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    { "data": "request_id" },
+                    {
+                        "data": "Requester.UserName",
+                        "render": function (data, type, full, meta) {
+                            return full.Requester.FirstName + " " + full.Requester.LastName;
+                        }
+                    },
+                    { "data": "createdOn" },
+                    { "data": "Requester.Position" },
+                    { "data": "Requester.Campus" },
+                    {
+                        "data": "LatestStatus",
+                        "render": function (data, type, full, meta) {
+
+                            if (full.LatestStatus == '1') {
+                                return '<span class="label label-warning"> Submitted </span >'
+                            }
+                            if (full.LatestStatus == '2') {
+                                return '<span class="label label-primary"> Verified</span >'
+                            }
+                            if (full.LatestStatus == '3') {
+                                return '<span class="label label-danger"> Rejected</span >'
+                            }
+                            if (full.LatestStatus == '4') {
+                                return '<span class="label label-success"> Approved</span >'
+                            }
+                            if (full.LatestStatus == '5') {
+                                return '<span class="label label-danger"> Rejected</span >'
+                            }
+
+                            if (full.LatestStatus == '9') {
+                                return '<span class="label label-default">Cancelled</span >'
+                            }
+
+                        }
+                    },
+                    {
+                        "data": "TravelDeclarationId",
+                        "render": function (data) {
+                            return "<a class='btn bg-light-blue-gradient btn-xs bnt-flat' target='_blank' href='/TravelDeclaration/Edit/" + data + "')><i class='fa fa-file-text-o'></i> Details</a>";
+                        },
+                    }
+                ],
+                "columnDefs": [{
+                    "searchable": false,
+                    "orderable": false,
+                    "targets": [0, 1, 2, 3, 4, 5, 6, 7]
+                }],
+                "orderFixed": [0, 'asc'],
+
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+
+            HideLoadingMessage();
+        },
+        complete: function (data) {
+            $('#redZoneForm')[0].reset();
+            HideLoadingMessage();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            ShowMessageError("Error!!! Please check your form again");
+            HideLoadingMessage();
+        }
+    });
+
+    $(document).on('change', '#isActivate', function () {
+            $.ajax({
+                type: "POST",
+                url: "/HRBP/RedZone/ActivateRedZone",
+                data: { id: redZoneId },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                success: function (data) {
+                    ShowMessage(data.message);
+                    HideLoadingMessage();
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+
+            })
+
+    })
+
+    $(document).ready(function () {
+        if (isDomestic == 1) {
+            $("div#redZoneProvinceArea").show();
+            $("div#redZoneDistrictArea").show();
+            $("div#redZoneWardArea").show();
+            $("div#redZoneCountryArea").hide();
+            $("div#redZoneCityArea").hide();
+            $('input.domestic').attr("checked", true);
+
+        } else if (isDomestic == 2) {
+            $("div#redZoneProvinceArea").hide();
+            $("div#redZoneDistrictArea").hide();
+            $("div#redZoneWardArea").hide();
+            $("div#redZoneCountryArea").show();
+            $("div#redZoneCityArea").show();
+            $('input.intl]').attr("checked", true);
+        }
+
+        if (isTransport == true) {
+            $("div#redZoneProvinceArea").hide();
+            $("div#redZoneDistrictArea").hide();
+            $("div#redZoneWardArea").hide();
+            $("div#redZoneCountryArea").hide();
+            $("div#redZoneCityArea").hide();
+        }
+
+    })
+</script>

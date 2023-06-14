@@ -1,0 +1,43 @@
+﻿@model IEnumerable<src.Core.Domains.TravelDeclarationDashboardModel>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <h4> Travel Declaration's Dashboard Summary for Cambridge </h4>
+        <div class="box-body">
+            <table id="tDCam" name="Travel Declaration's Dashboard Summary for Cam " class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">Campus/Dept</th>
+                        <th class="col-md-1">Submitted</th>
+                        <th class="col-md-1">Verified</th>
+                        <th class="col-md-1">Approved</th>
+                        <th class="col-md-1">Rejected</th>
+                        <th class="col-md-1">Cancelled</th>
+                        <th class="col-md-1">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Campus</td>
+                                <td>@item.Submitted</td>
+                                <td>@item.Verified</td>
+                                <td>@item.Approved</td>
+                                <td>@item.Rejected</td>
+                                <td>@item.Cancelled</td>
+                                <td>@item.Total</td>
+
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>

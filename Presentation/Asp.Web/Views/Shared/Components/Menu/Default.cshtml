@@ -1,0 +1,8 @@
+﻿@using src.Core
+@using src.Web.Extensions
+<section class="sidebar">
+    <ul class="sidebar-menu" data-widget="tree">
+        <li class="header">MAIN NAVIGATION</li>
+        <li class="@(Html.IsMenuActive("/Account") ? "active" : "")"><a href="~/Account/ApplicationUser"><i class="fa fa-user"></i> @Constants.MainPages.ApplicationUsers</a></li>
+    </ul>
+</section>

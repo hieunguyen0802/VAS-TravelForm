@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire" Version="1.7.0" />
+    <PackageReference Include="NonFactors.Grid.Core.Mvc6" Version="6.2.4" />
+    <PackageReference Include="NonFactors.Grid.Mvc6" Version="6.2.4" />
+    <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="20.1.0.52" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Asp.Data\src.Data.csproj" />
+    <ProjectReference Include="..\Asp.Emails\src.Emails.csproj" />
+	<ProjectReference Include="..\..\Presentation\Asp.Web.Common\src.Web.Common.csproj" />
+  </ItemGroup>
+
+</Project>

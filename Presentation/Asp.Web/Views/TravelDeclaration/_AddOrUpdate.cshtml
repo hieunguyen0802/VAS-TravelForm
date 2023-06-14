@@ -1,0 +1,1166 @@
+﻿@using src.Core.Enums
+@model src.Web.Common.Models.TravelDeclarations.TravelDeclarationModel
+<link rel="stylesheet" href="~/lib/iCheck/all.css">
+<script src="~/lib/iCheck/icheck.min.js"></script>
+<script src="~/lib/disable-autofill/disable-autofill.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+<script src="~/lib/DataTables/select/dataTables.select.min.js"></script>
+<link rel="stylesheet" href="~/lib/DataTables/select/select.dataTables.min.css" />
+<style>
+    .has-error .select2-selection {
+        border-color: rgb(185, 74, 72) !important;
+    }
+
+    th.hide_me, td.hide_me {
+        display: none;
+    }
+    
+    
+</style>
+<div class="col-lg-12">
+
+    <p class="well well-sm bg-blue text-bold" style="margin-top: 10px;">
+        1. THÔNG TIN CÁ NHÂN KÊ KHAI / <cite>GENERAL INFORMATION</cite>
+    </p>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label asp-for="Requester.FirstName" class="col-sm-4 control-label">Họ tên / <cite class="text-purple">Full name:</cite> </label>
+                <div class="col-sm-8">
+                    <input type="text" asp-for="Requester.FirstName" value="@Model.Requester.FirstName @Model.Requester.LastName" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label for="inputEmail3" class="col-sm-4 control-label">Chức danh / <cite class="text-purple">Position:</cite></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" asp-for="positionTemp" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label for="inputEmail3" class="col-sm-4 control-label">Mã Nhân viên / <cite class="text-purple">EME code: </cite></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" asp-for="Requester.UserCode" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label for="inputEmail3" class="col-sm-4 control-label">Cơ sở:/ PB/ <cite class="text-purple">Campus/ Dept.: </cite> </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" asp-for="campusTemp" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label for="inputEmail3" class="col-sm-4 control-label">Current Address:/ <cite class="text-purple">Địa chỉ hiện tại: </cite></label>
+                <div class="col-lg-8">
+                    <div class="col-lg-6" style="padding-left:0;">
+                        <label>City/Province<span class="field-required">*</span></label>
+                        <select asp-for="travelProvinceId" class="form-control select2" style="width: 100%;" asp-items="@Model.Provinces">
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="travelProvinceId" class="text-danger"></span>
+                    </div>
+                    <div class="col-lg-6" style="padding-left:0;padding-right:0;">
+                        <label>District/Quận/Huyện<span class="field-required">*</span></label>
+                        <select asp-for="travelDistrictId" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="travelDistrictId" class="text-danger"></span>
+                    </div>
+                    <div class="col-lg-6" style="padding-left:0;">
+                        <label>Ward/ Phường<span class="field-required">*</span></label>
+                        <select asp-for="travelWardId" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                        <span asp-validation-for="travelWardId" class="text-danger"></span>
+                    </div>
+                    <div class="col-lg-6" style="padding-left:0;padding-right:0;">
+                        <label>House number, Street/Số nhà, tên đường:<span class="field-required">*</span></label>
+                        <input id="userHomeAddress" type="text" class="form-control" asp-for="travelHomeAddress">
+                        <span asp-validation-for="travelHomeAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label for="inputEmail3" class="col-sm-4 control-label">Số ĐTDĐ:/ <cite class="text-purple">Phone Number: </cite><span class="field-required">*</span> </label>
+                <div class="col-sm-8">
+                    <input id="userPhone" type="text" class="form-control" asp-for="Requester.Mobile" required autofill="off">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <p class="well well-sm bg-blue text-bold" style="margin-top: 10px;">
+        2. THỜI GIAN VÀ ĐỊA ĐIỂM DU LỊCH / <cite>TRAVEL TIME & LOCATION</cite>
+    </p>
+
+    <div class="row">
+        <div class="row">
+            <label class="col-lg-1 control-label" style="padding-bottom:10px; text-align:left">TỪ / FROM </label>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group" id="fromCountry">
+                    <label asp-for="travelFromCountryId" class="col-sm-4 control-label">Quốc Gia<br /> <cite class="text-purple">Country</cite> <span class="field-required">*</span> </label>
+                    <div class="col-sm-8">
+                        <select asp-for="travelFromCountryId" class="form-control select2" style="width: 100%;" asp-items="@Model.Countries">
+                            
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            @if (Model.LatestStatus != 0)
+            {
+                @if (Model.travelFromCountryId != null)
+                {
+                    @if (Model.travelFromCountryId != "VN")
+                    {
+                        <div class="col-lg-4">
+                            <div class="form-group" id="fromProvinceTextBox">
+                                <label asp-for="travelFromIntl" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" asp-for="travelFromIntl">
+                                    <span asp-validation-for="travelFromIntl" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                    else
+                    {
+                        <div class="col-lg-4">
+                            <div class="form-group" id="fromProvince">
+                                <label asp-for="travelFrom" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span></label>
+                                <div class="col-sm-8">
+                                    <select asp-for="travelFrom" class="form-control select2" style="width: 100%;" id="fromProvince" asp-items="@Model.Provinces">
+              
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+
+                else
+                {
+                    <div class="col-lg-4">
+                        <div class="form-group" id="fromProvince">
+                            <label asp-for="travelFrom" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span></label>
+                            <div class="col-sm-8">
+                                <select asp-for="travelFrom" class="form-control select2" style="width: 100%;" id="fromProvince" asp-items="@Model.Provinces">
+     
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+
+                <div class="col-lg-4">
+                    <div class="form-group" id="fromProvince">
+                        <label asp-for="travelFrom" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span> </label>
+                        <div class="col-sm-8">
+                            <select asp-for="travelFrom" class="form-control select2" style="width: 100%;" id="fromProvince" asp-items="@Model.Provinces">
+ 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="fromProvinceTextBox">
+                        <label asp-for="travelFromIntl" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite><span class="field-required">*</span> </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" asp-for="travelFromIntl">
+                            <span asp-validation-for="travelFromIntl" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="departureDate" class="col-sm-4 control-label">Ngày đi<br /><cite class="text-purple">Departure date</cite> <span class="field-required">*</span></label>
+                    <div class="col-lg-8">
+                        <input id="departDate" style="width:50% !important;" type="text" asp-for="departureDate" class="form-control datetravel " />
+                        <span asp-validation-for="departureDate" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="departureTransportation" class="col-sm-4 control-label">Phương tiện<br /><cite class="text-purple">Transportation</cite> <span class="field-required">*</span></label>
+                    <div class="col-sm-8">
+                        <input id="departTransportation" type="text" class="form-control" asp-for="departureTransportation">
+                        <span asp-validation-for="departureTransportation" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    @if (Model.status > 0)
+                    {
+
+                        <label asp-for="departureTicket" class="col-sm-4 control-label">Đính kèm vé:<br /><cite class="text-purple">Enclosed ticket</cite></label>
+                        <div class="col-sm-8">
+                            <br />
+                            <a href="@Model.departureTicketPath"><span class="text-bold text-red">@Model.departureTicket</span></a>
+                        </div>
+
+                    }
+                    else
+                    {
+                        <label asp-for="departureTicket" class="col-sm-4 control-label">Đính kèm vé:<br /><cite class="text-purple">Enclosed ticket</cite></label>
+                        <div class="col-sm-8">
+                            <input type="file" asp-for="departureTicket" class="col-sm-8 filestyle" data-buttonText="File" accept="application/pdf, image/*">
+                            <span asp-validation-for="departureTicket" class="text-danger"></span>
+                        </div>
+                    }
+
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group"> </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top:10px;">
+        <div class="row">
+            <label class="col-lg-1 control-label" style="padding-bottom:10px;text-align:left">ĐẾN / TO </label>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group" id="toCountry">
+                    <label asp-for="travelToCountryId" class="col-sm-4 control-label">Quốc Gia<br /><cite class="text-purple">Country</cite> <span class="field-required"> *</span></label>
+                    <div class="col-sm-8">
+                        <select asp-for="travelToCountryId" class="form-control select2" style="width: 100%;" asp-items="@Model.Countries">
+                            
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.LatestStatus != 0)
+            {
+                @if (Model.travelToCountryId != null)
+                {
+                    @if (Model.travelToCountryId != "VN")
+                    {
+                        <div class="col-lg-4">
+                            <div class="form-group" id="toProvinceTextBox">
+                                <label asp-for="travelToIntl" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" asp-for="travelToIntl">
+                                    <span asp-validation-for="travelToIntl" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-4">
+                            <div class="form-group" id="toProvince">
+                                <label asp-for="travelTo" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span></label>
+                                <div class="col-sm-8">
+                                    <select asp-for="travelTo" class="form-control select2" style="width: 100%;" id="toProvince" asp-items="@Model.Provinces">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                else
+                {
+                    <div class="col-lg-4">
+                        <div class="form-group" id="toProvince">
+                            <label asp-for="travelTo" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span></label>
+                            <div class="col-sm-8">
+                                <select asp-for="travelTo" class="form-control select2" style="width: 100%;" id="toProvince" asp-items="@Model.Provinces">
+                               
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+
+                <div class="col-lg-4">
+                    <div class="form-group" id="toProvince">
+                        <label asp-for="travelTo" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite> <span class="field-required">*</span> </label>
+                        <div class="col-sm-8">
+                            <select asp-for="travelTo" class="form-control select2" style="width: 100%;" id="toProvince" asp-items="@Model.Provinces">
+                               
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="toProvinceTextBox">
+                        <label asp-for="travelToIntl" class="col-sm-4 control-label">Thành phố/Tỉnh<br /><cite class="text-purple">City/Province</cite><span class="field-required">*</span> </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" asp-for="travelToIntl">
+                            <span asp-validation-for="travelToIntl" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="returningDate" class="col-sm-4 control-label">Ngày về<br /><cite class="text-purple">Returning date</cite> <span class="field-required">*</span></label>
+                    <div class="col-lg-8">
+                        <input id="returnDate" style="width:50% !important;" type="text" asp-for="returningDate" class="form-control datetravel " data-inputmask="'alias': 'datetime'">
+                        <span asp-validation-for="returningDate" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="returningTransportaion" class="col-sm-4 control-label">Phương tiện<br /><cite class="text-purple">Transportation</cite> <span class="field-required">*</span></label>
+                    <div class="col-sm-8">
+                        <input id="returnTransportation" type="text" class="form-control" asp-for="returningTransportaion">
+                        <span asp-validation-for="returningTransportaion" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                @if (Model.status > 0)
+                {
+                    <label asp-for="returningTicket" class="col-sm-4 control-label">Đính kèm vé:<br /><cite class="text-purple">Enclosed ticket</cite> </label>
+                    <div class="col-sm-8">
+                        <br />
+                        <a href="@Model.returningTicketPath"><span class="text-bold text-red">@Model.returningTicket</span></a>
+                    </div>
+
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label asp-for="returningTicket" class="col-sm-4 control-label">Đính kèm vé:<br /><cite class="text-purple">Enclosed ticket</cite></label>
+                        <div class="col-sm-8">
+                            <input type="file" asp-for="returningTicket" class="filestyle" data-buttonText="File" accept="application/pdf, image/*">
+                            <span asp-validation-for="returningTicket" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-12">
+    <p class="well well-sm bg-blue text-bold" style="margin-top: 10px;">
+        3. LỘ TRÌNH DI CHUYỂN / <cite>TRAVELLING ROUTES</cite>
+    </p>
+    <div class="box">
+        @if (Model.status == 0)
+        {
+            <div class="row">
+                <div class="col-lg-4" style="padding-bottom:20px;">
+                    <a class="btn btn-sm btn-success" data-toggle="modal" data-target="#addNewRoute" id="addNewRouteBtn"><i class="fa fa-plus"> </i><span>Add New Route</span></a>
+                </div>
+            </div>
+        }
+
+        <div class="box-body table-responsive no-padding">
+
+            <table class="table table-hover table-responsive " id="travellingRoutes" name="travellingRoutes" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th class="col-lg-1" style="font-size:12px;">Từ [Ngày & Giờ] / <cite class="text-purple">From [Date & Time]</cite></th>
+                        <th class="col-lg-1" style="font-size:12px;">Đến [Ngày & giờ] / <cite class="text-purple">To [Date & Time]</cite></th>
+                        <th class="col-lg-3" style="font-size:12px;">Địa điểm (Số nhà, tên đường, Phường, Quận/Huyện, Tỉnh/TP) / <br /><cite class="text-purple">Location (State clearly: House number, Street, Ward, District, City/Province)</cite></th>
+                        <th style="display:none"></th>
+                        <th style="display:none"></th>
+                        <th style="display:none"></th>
+                        <th style="display:none"></th>
+                        <th style="display:none"></th>
+                        <th style="display:none"></th>
+                        <th class="col-lg-2" style="font-size:12px;">Phương tiện / Means of transportation <br /><cite class="text-purple">Ghi rõ loại phương tiện, tên chuyến bay/ chuyến tàu lửa/ tên bến xe/ tên đơn vị vân chuyển,… / Clearly state the form of transportation, flight/train number, station, transport company, etc.</cite></th>
+                        <th class="col-lg-3" style="font-size:12px;">Ghi chú:<br /><cite class="text-purple">Notes.</cite></th>
+                        <th class="col-lg-2" style="font-size:12px;">Actions</th>
+                    </tr>
+            </table>
+        </div>
+        <span asp-validation-for="travellingRoutes" class="text-danger"></span>
+    </div>
+
+</div>
+<div class="col-lg-12">
+    <p class="well well-sm bg-blue text-bold" style="margin-top: 10px;">
+        4. NGÀY TRỞ LẠI LÀM VIỆC THEO THỰC TẾ / <cite>DATE BACK TO WORK</cite>
+    </p>
+    <div class="form-group">
+        <label asp-for="backToWorkDate" class="col-sm-2 control-label">Ngày trở lại làm việc /  Back to work date: </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <input type="text" asp-for="backToWorkDate" class="form-control datetravel" data-inputmask="'alias': 'datetime','inputFormat': 'dd/mm/yyyy'">
+            </div>
+            <span asp-validation-for="backToWorkDate" class="text-danger"></span>
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Informed group:<span class="field-required">*</span> </label>
+        <div class="col-lg-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                <input asp-for="informedEmail" class="form-control" value="@Model.informedEmail" readonly />
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="form-group">
+        <label asp-for="nameOfLineManager" class="col-sm-2 control-label">Verified by:<span class="field-required">*</span> </label>
+        <div class="col-lg-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                <input asp-for="nameOfLineManager" class="form-control" value="@(Model.nameOfLineManager!= null ? Model.nameOfLineManager :Model.Requester.linemanager)" readonly />
+            </div>
+            <span asp-validation-for="nameOfLineManager" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="form-group">
+        <label asp-for="HREmail" class="col-sm-2 control-label">Approved by:<span class="field-required">*</span> </label>
+        <div class="col-lg-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                <input asp-for="ECSDEmail" class="form-control" value="@(Model.ECSDEmail!= null ? Model.ECSDEmail :Model.Requester.ecsd)" readonly />
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="form-group">
+        <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
+            <label style="font-weight:normal !important;" class="text-justify">
+                <input type="checkbox" id="chkAccept" class="minimal-red" @(Model.status > 0 ? "checked" : "")>
+                Tôi xin cam kết những gì tôi đã tường trình trên đây là đúng sự thật. Nếu có gì sai trái tôi xin chịu hoàn toàn trách nhiệm.
+                <br />
+                I commit that the information above is true. I shall take full responsibility for any falsity.
+            </label>
+        </p>
+    </div>
+</div>
+
+<div id="addNewRoute" class="modal fade" role="dialog" style="overflow-y: auto !important;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Add/Edit Travel Route</h4>
+            </div>
+            <div class="modal-body">
+                <p class="text-red">*All form fields are required.</p>
+
+                <div class="form-group">
+                    <div class="col-md-6" style="padding-right:5px !important;">
+                        <label>Từ (Ngày & giờ) / <cite class="text-purple">From (Date & Time)</cite></label>
+                        <input id="dateTravel" class="form-control datepickerJquery" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Đến (Ngày & giờ) / <cite class="text-purple">To(Date & Time)</cite></label>
+                        <input id="toDateTravel" class="form-control datepickerJquery" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check col-md-6">
+                        <input class="form-check-input" type="radio" name="addressVn" id="addressVn" value="vietnam">
+                        <label class="form-check-label" for="addressVn">
+                            Domestic Address
+                        </label>
+                    </div>
+                    <div class="form-check col-md-6">
+                        <input class="form-check-input" type="radio" name="addressVn1" id="addressIntl" value="international">
+                        <label class="form-check-label" for="addressVn1">
+                            International Address
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-md-6" id="provinceVn">
+                        <label> Province <cite class="text-purple">/ Tỉnh / Thành phố </cite></label>
+                        <select id="travelRouteProvinceId" asp-items="@Model.Provinces" autofill="off" class="form-control select2" style="width: 100%;" required>
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="districtVn">
+                        <label>District/<cite class="text-purple">Quận/Huyện</cite></label>
+                        <select id="travelRouteDistrictId" class="form-control select2" autofill="off" style="width: 100%;" required>
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12" id="wardVn">
+                        <label>Ward/<cite class="text-purple">Phường</cite></label>
+                        <select id="travelRouteWardId" class="form-control select2 selectWard" autofill="off" style="width: 100%;" required>
+                            <option value="0">Please select one</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="country">
+                    <div class="col-md-12">
+                        <label>Country/<cite class="text-purple"> Quốc Gia </cite></label>
+                        <select id="travelRouteCountryId" asp-items="@Model.Countries" autofill="off" class="form-control select2 selectCountry" style="width: 100%;" required>
+                            <option value="0">Please select one</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="city">
+                    <div class="col-md-12">
+                        <label>City <cite class="text-purple">/Thành phố</cite></label>
+                        <input type="text" class="form-control" id="travelRouteCity" autofill="off" name="travelRouteCity" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <label>House number, Street<cite class="text-purple">/Số nhà, tên đường</cite></label>
+                        <input type="text" class="form-control" id="travelRouteAddress" autofill="off" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <label>Phương tiện / Means of transportation <br /><cite class="text-purple">Ghi rõ loại phương tiện, tên chuyến bay/ chuyến tàu lửa/ tên bến xe/ tên đơn vị vân chuyển,… / Clearly state the form of transportation, flight/train number, station, transport company, etc.</cite></label>
+                        <input type="text" class="form-control" id="transportation" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <label>Ghi chú:<cite class="text-purple">/Notes</cite></label>
+                        <textarea id="travelRoutesNotes" class="form-control" name="travelRoutesNotes" rows="1" style="width:100%"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" id="saveRoute" class="btn btn-primary save">Save</button>
+                <button type="button" id="updateRoute" class="btn btn-primary update">Update</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    function FormatDateTimeData(date) {
+        var parts = date.split("/");
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+
+
+    $(".select2").select2();
+    $(document).ready(function () {
+        var currentRowEdit = 0;
+        var travelRouteObj = @Html.Raw(Json.Serialize(@Model.travellingRoutes));
+
+        var tableTravellingRouteDetails = $('#travellingRoutes').DataTable(
+            {
+                @if (@Model.travellingRoutes != null)
+                {
+                    <text>
+                "data": travelRouteObj,
+                "columns": [
+                    { "data": "dateTravel" },
+                    { "data": "toDateTravel" },
+                    { "data": "travelRouteFullAddress" },
+                    { "data": "travelRouteDistrictId" },
+                    { "data": "travelRouteProvinceId" },
+                    { "data": "travelRouteWardId" },
+                    { "data": "travelRouteCountryId" },
+                    { "data": "travelRouteCity" },
+                    { "data": "travelRouteAddress" },
+                    { "data": "transportation" },
+                    { "data": "travelRoutesNotes" },
+                    { "data": null, defaultContent: '' },
+                ],
+                    </text>
+                }
+
+
+                "aoColumnDefs": [
+                    { "sClass": "hide_me", "aTargets": [3, 4, 5, 6, 7, 8] },
+                    { type: 'date - euro', targets: [0, 1] }
+
+                ],
+
+                destroy: true,
+                cache: false,
+                "language": {
+                    "emptyTable": "No data found."
+                },
+                "aaSorting": [],
+                "lengthChange": false,
+            });
+
+        $(".datetravel").inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
+        $(".datetravel").inputmask("99/99/9999", { "clearIncomplete": true });
+
+        $('input[type="checkbox"].minimal-red, input[type="radio"].minimal-red').iCheck({
+            checkboxClass: 'icheckbox_minimal-red',
+            radioClass: 'iradio_minimal-red'
+        });
+
+        $('#chkAccept').on('ifChanged', function (event) {
+            if (this.checked) // if changed state is "CHECKED"
+            {
+                $('#btnSubmitRequest').prop('disabled', false);
+            }
+            else {
+                $('#btnSubmitRequest').prop('disabled', true);
+            }
+        });
+
+        $('#addNewRoute').on('hidden.bs.modal', function () {
+            $(this).find("input,textarea").val('').end()
+        })
+
+        $(".datepickerJquery").datetimepicker({
+            dayOfWeekStart: 1,
+            scrollMonth: false,
+            scrollInput: false,
+            lang: 'en',
+            disabledDates: ['1986/01/08', '1986/01/09', '1986/01/10'],
+            minDate: 0,
+            startDate: new Date(),
+            format: 'd/m/Y H:i',
+            closeOnDateSelect: true
+        });
+
+
+
+        $("#departDate").datetimepicker({
+            timepicker: false,
+            scrollMonth: false,
+            scrollInput: false,
+            format: 'd/m/Y',
+            validateOnBlur: false,
+            minDate: 0,
+            onSelectDate: function (ct, $i) {
+                $("#returnDate").datetimepicker({
+                    timepicker: false,
+                    format: 'd/m/Y',
+                    validateOnBlur: false,
+                    minDate: $('#departDate').datetimepicker('getValue')
+                });
+            }
+        });
+
+
+        $("#returnDate").datetimepicker({
+            timepicker: false,
+            scrollMonth: false,
+            scroxllInput: false,
+            format: 'd/m/Y',
+            validateOnBlur: false,
+            minDate: 0,
+            onSelectDate: function (ct, $i) {
+                $("#backToWorkDate").datetimepicker({
+                    timepicker: false,
+                    format: 'd/m/Y',
+                    scrollMonth: false,
+                    scrollInput: false,
+                    validateOnBlur: false,
+                    minDate: $('#returnDate').datetimepicker('getValue')
+                });
+            }
+        });
+
+
+        $("#departDate").keypress(function (e) {
+            return false;
+        });
+        $("#departDate").keydown(function (e) {
+            return false;
+        });
+        $("#returnDate").keypress(function (e) {
+            return false;
+        });
+        $("#returnDate").keydown(function (e) {
+            return false;
+        });
+        $("#backToWorkDate").keypress(function (e) {
+            return false;
+        });
+        $("#backToWorkDate").keydown(function (e) {
+            return false;
+        });
+
+        $("#returnDate").datetimepicker({
+            scrollInput: false
+        });
+
+
+        window.LoadDistrict = function (ProvinceId, DistrictId) {
+            loadDistrict = false
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/getDistrictByProvinceId",
+                data: { provinceId: $("#" + ProvinceId).val() },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                async: false,
+                success: function (data) {
+                    if (data != null) {
+                        $("#" + DistrictId).empty();
+                        $("#" + DistrictId).append($('<option>', { value: "", text: '-- Select one --' }));
+                        $(".selectWard").select2().empty();
+                        $(".selectWard").select2().append($('<option>', { value: "", text: '-- Select one --' }));
+                        var array = JSON.parse(JSON.stringify(data));
+                        for (var i = 0; i < array.length; i++) {
+                            $("#" + DistrictId).append($("<option></option>").attr("value", array[i].districtId).text(array[i].name));
+                        }
+                        if ('@Model.travelDistrictId' != 0) {
+                            $("#travelDistrictId").val('@Model.travelDistrictId').trigger("change");
+                            LoadWard("travelDistrictId", "travelWardId");
+                        }
+
+                    }
+                    HideLoadingMessage();
+                }
+            });
+        };
+
+        window.LoadWard = function (DistrictId, WardId) {
+            loadProvine = false;
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/getWardByDistrictId",
+                data: {
+                    DistrictId: $("#" + DistrictId).val()
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                async: false,
+                success: function (data) {
+                    $('#' + WardId).empty();
+                    if (data != null) {
+                        $(".selectWard").select2().append($('<option>', { value: "", text: '-- Select one --' }));
+                        var array = JSON.parse(JSON.stringify(data));
+                        for (var i = 0; i < array.length; i++) {
+                            $('#' + WardId).append($("<option></option>").attr("value", array[i].wardId).text(array[i].name));
+                        }
+                        if ('@Model.travelWardId' != 0) {
+                            $("#travelWardId").val('@Model.travelWardId');
+                        }
+                    }
+                    console.log($("#travelWardId").val());
+                    HideLoadingMessage();
+                },
+                error: function () {
+                    HideLoadingMessage();
+                }
+            });
+        };
+
+
+
+        $("#travelProvinceId").on("change", function () {
+            LoadDistrict("travelProvinceId", "travelDistrictId");
+        });
+        $("#travelProvinceId").val("79TTT").change();
+
+        $("#travelDistrictId").on("change", function () {
+            LoadWard("travelDistrictId", "travelWardId");
+        });
+
+
+        $("#travelRouteProvinceId").on("change", function () {
+            LoadDistrict("travelRouteProvinceId", "travelRouteDistrictId");
+        });
+        $("#travelRouteProvinceId option[value='79TTT']").remove();
+
+        $("#travelRouteDistrictId").on("change", function () {
+            LoadWard("travelRouteDistrictId", "travelRouteWardId");
+        });
+
+        var
+            dateTravel = $("#dateTravel"),
+            toDateTravel = $("#toDateTravel"),
+            TravelRouteProvinceId = $("#travelRouteProvinceId"),
+            TravelRouteDistrictId = $("#travelRouteDistrictId"),
+            TravelRouteWardId = $("#travelRouteWardId"),
+            TravelRouteCountryId = $('#travelRouteCountryId'),
+            TravelRouteCity = $('#travelRouteCity'),
+            TravelRouteAddress = $("#travelRouteAddress"),
+            transportation = $("#transportation"),
+            travelRoutesNotes = $("#travelRoutesNotes");
+
+        var colDate, colToDateTravel, Address, colAddress, colFullAddress, colProvince, colDistrict, colWard, colCountry, colCity, colTransportation, colTravelRoutesNotes, deleteBnt, editBtn;
+
+        function fillDataToControl(rowIndex) {
+            deleteBnt = '<a class="btn btn-sm btn-danger deleteRouteAtRedZone" title="delete"><i class="fa fa-remove"></i></a>';
+            colDate = '<input type="text" class="form-control" name="travellingRoutes[' + rowIndex + '].dateTravel" value="' + dateTravel.val() + '" readonly>';
+            colToDateTravel = '<input type="text" class="form-control" name="travellingRoutes[' + rowIndex + '].toDateTravel" value="' + toDateTravel.val() + '" readonly>';
+
+
+            if ($("input[name=addressVn]").is(":checked")) {
+                Address = TravelRouteAddress.val() + " - " + $('#travelRouteWardId option:selected').text() + " - "
+                    + $('#travelRouteDistrictId option:selected').text() + " - " + $('#travelRouteProvinceId option:selected').text();
+            } else if ($("input[name=addressVn1]").is(":checked")) {
+                Address = TravelRouteAddress.val() + " - " + TravelRouteCity.val() + " - " + $('#travelRouteCountryId option:selected').text();
+
+            }
+
+            colProvince = '<input type="hidden" class="form-control" name="travellingRoutes[' + rowIndex + '].travelRouteProvinceId" value="' + TravelRouteProvinceId.val() + '" readonly>';
+            colDistrict = '<input type="hidden" class="form-control" name="travellingRoutes[' + rowIndex + '].travelRouteDistrictId" value="' + TravelRouteDistrictId.val() + '" readonly>';
+            colWard = '<input type="hidden" class="form-control" name="travellingRoutes[' + rowIndex + '].travelRouteWardId" value="' + TravelRouteWardId.val() + '" readonly>';
+            colCountry = '<input type="hidden" class="form-control" name="travellingRoutes[' + rowIndex + '].travelRouteCountryId" value="' + TravelRouteCountryId.val() + '" readonly>';
+            colCity = '<input type="hidden" class="form-control" name="travellingRoutes[' + rowIndex + '].travelRouteCity" value="' + TravelRouteCity.val() + '" readonly>';
+            colAddress = '<input type="hidden" class="form-control" name="travellingRoutes[' + rowIndex + '].travelRouteAddress" value="' + TravelRouteAddress.val() + '" readonly>';
+            colFullAddress = '<input style="min-width: 100%!important;"  type="text" class="col-lg-12 form-control" name="travellingRoutes[' + rowIndex + '].travelRouteFullAddress" value="' + Address + '" readonly>';
+            colTravelRoutesNotes = '<input style="min-width: 100%!important;"  type="text" class="col-lg-12 form-control" name="travellingRoutes[' + rowIndex + '].travelRoutesNotes" value="' + travelRoutesNotes.val() + '" readonly>';
+            colTransportation = '<input style="min-width: 100%!important;" type="text" class="form-control" name="travellingRoutes[' + rowIndex + '].transportation" value="' + transportation.val() + '" readonly>';
+
+            editBtn = '<a data-toggle="modal" data-target="#addNewRoute"'
+                + 'data-date="' + dateTravel.val() + '"'
+                + 'data-returndate="' + toDateTravel.val() + '"'
+                + ' data-province="' + TravelRouteProvinceId.val() + '"'
+                + ' data-district="' + TravelRouteDistrictId.val() + '"'
+                + ' data-ward="' + TravelRouteWardId.val() + '"'
+                + ' data-country="' + TravelRouteCountryId.val() + '"'
+                + ' data-city="' + TravelRouteCity.val() + '"'
+                + ' data-address="' + TravelRouteAddress.val() + '"'
+                + ' data-trans="' + transportation.val() + '"'
+                + ' data-travelroutesNote="' + travelRoutesNotes.val() + '"' +
+                ' class="btn btn-sm btn-warning edit" title = "Edit" data-toggle="tooltip" style="margin-right: 10px;"> <i class="fa fa-pencil"></i></a> ';
+        }
+
+        $('body').on('click', '.edit', function () {
+            $("#updateRoute").show();
+            $("#saveRoute").hide();
+            currentRowEdit = $(this).closest("tr").index();
+            $("#dateTravel").val($(this).data('date'));
+            $("#toDateTravel").val($(this).data('returndate'));
+            $("#travelRouteProvinceId").val($(this).data('province')).change();
+            $("#travelRouteDistrictId").val($(this).data('district')).change();
+            $("#travelRouteWardId").val($(this).data('ward')).change();
+            $("#travelRouteCountryId").val($(this).data('country')).change();
+            $("#travelRouteCity").val($(this).data('city')).change();
+            $("#travelRouteAddress").val($(this).data('address'));
+            $("#transportation").val($(this).data('trans'));
+            $("#travelRoutesNotes").val($(this).data('travelroutesnote'));
+        });
+
+        $("#addNewRouteBtn").click(function () {
+            $("#saveRoute").show();
+            $("#updateRoute").hide();
+            $('div#provinceVn').show();
+            $('div#districtVn').show();
+            $('div#wardVn').show();
+            $("div#city").hide();
+            $("div#country").hide();
+            $('input#addressVn').iCheck('check');
+            $('input#addressIntl').iCheck('uncheck');
+            $("input[name=addressVn]").val("vietnam");
+            $("input[name=addressVn1]").val("international");
+
+        })
+
+        window.setDistrict = function (DistrictId) {
+            $("#TravelRouteDistrictId").val(DistrictId).change();
+        }
+
+        function validateForm() {
+            var dateTravel = $('#dateTravel');
+            var colToDateTravel = $('#toDateTravel');
+            var travelRouteProvinceId = $('#travelRouteProvinceId');
+            var travelRouteDistrictId = $('#travelRouteDistrictId');
+            var travelRouteWardId = $('#travelRouteWardId');
+            var travelRouteCountryId = $('#travelRouteCountryId');
+            var travelRouteCity = $('#travelRouteCity');
+            var travelRouteAddress = $('#travelRouteAddress');
+            var transportation = $('#transportation');
+            var travelRoutesNotes = $('#travelRoutesNotes');
+
+            var validDateTravel = new Date(FormatDateTimeData(dateTravel.val().substring(0,11)));
+            var validToDateTravel = new Date(FormatDateTimeData(colToDateTravel.val().substring(0, 11)));
+
+
+            if (!dateTravel.val()) {
+                dateTravel.closest('.form-group').removeClass('has-success').addClass('has-error');
+                formValid = false;
+
+            } else if (!colToDateTravel.val()) {
+                colToDateTravel.closest('.form-group').removeClass('has-success').addClass('has-error');
+                formValid = false;
+            } else if (validDateTravel > validToDateTravel) {
+                alert("Từ ngày phải nhỏ hơn hoặc bằng Đến ngày \n"
+                    + "From date must be less than or equal to To Date");
+                formValid = false;
+
+            } else if ($("input[name=addressVn1]:checked").val() == "international") {
+                travelRouteProvinceId.closest('.form-group').removeClass('has-error');
+                travelRouteDistrictId.closest('.form-group').removeClass('has-error');
+                travelRouteWardId.closest('.form-group').removeClass('has-error');
+
+                if (travelRouteCountryId.val() == 0 || travelRouteCountryId.val() == "") {
+                    travelRouteCountryId.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    travelRouteCountryId.next().find('.select2-selection').addClass('has-error');
+                    formValid = false;
+                } else if (!travelRouteCity.val()) {
+                    travelRouteCity.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    formValid = false;
+                } else if (!travelRouteAddress.val()) {
+                    travelRouteAddress.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    formValid = false;
+                } else if (!transportation.val()) {
+                    transportation.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    formValid = false;
+                } else {
+
+                    travelRouteCountryId.closest('.form-group').removeClass('has-error');
+                    travelRouteCity.closest('.form-group').removeClass('has-error');
+                    travelRouteAddress.closest('.form-group').removeClass('has-error');
+                    transportation.closest('.form-group').removeClass('has-error');
+                    formValid = true;
+                }
+
+            } else if ($("input[name=addressVn]:checked").val() == "vietnam") {
+                travelRouteCountryId.closest('.form-group').removeClass('has-error');
+                travelRouteCity.closest('.form-group').removeClass('has-error');
+                if (travelRouteProvinceId.val() == 0 || travelRouteProvinceId.val() == "") {
+                    travelRouteProvinceId.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    travelRouteProvinceId.next().find('.select2-selection').addClass('has-error');
+                    formValid = false;
+                } else if (travelRouteDistrictId.val() == 0 || travelRouteDistrictId.val() == "") {
+                    travelRouteDistrictId.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    travelRouteDistrictId.next().find('.select2-selection').addClass('has-error');
+                    formValid = false;
+                } else if (travelRouteWardId.val() == 0 || travelRouteWardId.val() == "") {
+                    travelRouteWardId.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    travelRouteWardId.next().find('.select2-selection').addClass('has-error');
+                    formValid = false;
+                } else if (!travelRouteAddress.val()) {
+                    travelRouteAddress.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    formValid = false;
+                } else if (!transportation.val()) {
+                    transportation.closest('.form-group').removeClass('has-success').addClass('has-error');
+                    formValid = false;
+                } else {
+
+                    travelRouteProvinceId.closest('.form-group').removeClass('has-error');
+                    travelRouteDistrictId.closest('.form-group').removeClass('has-error');
+                    travelRouteWardId.closest('.form-group').removeClass('has-error');
+
+                    travelRouteAddress.closest('.form-group').removeClass('has-error');
+                    transportation.closest('.form-group').removeClass('has-error');
+
+                    formValid = true;
+                }
+            } else {
+                dateTravel.closest('.form-group').removeClass('has-error');
+                colToDateTravel.closest('.form-group').removeClass('has-error');
+                travelRouteProvinceId.closest('.form-group').removeClass('has-error');
+                travelRouteDistrictId.closest('.form-group').removeClass('has-error');
+                travelRouteWardId.closest('.form-group').removeClass('has-error');
+                travelRouteCountryId.closest('.form-group').removeClass('has-error');
+                travelRouteCity.closest('.form-group').removeClass('has-error');
+                travelRouteAddress.closest('.form-group').removeClass('has-error');
+                transportation.closest('.form-group').removeClass('has-error');
+
+                formValid = true;
+            }
+          
+        }
+
+
+        $("#saveRoute").click(function () {
+            validateForm();
+            if (formValid == true) {
+                var rowCount = tableTravellingRouteDetails.data().length;
+                fillDataToControl(rowCount);
+                var rData = [
+                    colDate,
+                    colToDateTravel,
+                    colFullAddress,
+                    colProvince,
+                    colDistrict,
+                    colWard,
+                    colCountry,
+                    colCity,
+                    colAddress,
+                    colTransportation,
+                    colTravelRoutesNotes,
+                    editBtn + deleteBnt
+                ];
+                tableTravellingRouteDetails.row.add(rData).draw(false);
+                $('#addNewRoute').modal('hide');
+                $('[data-toggle="tooltip"]').tooltip();
+
+            }
+
+        });
+
+
+        $('#updateRoute').click(function () {
+            fillDataToControl(currentRowEdit);
+            validateForm();
+            if (formValid == true) {
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 0 }).data(colDate).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 1 }).data(colToDateTravel).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 2 }).data(colFullAddress).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 3 }).data(colProvince).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 4 }).data(colDistrict).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 5 }).data(colWard).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 6 }).data(colCountry).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 7 }).data(colCity).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 8 }).data(colAddress).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 9 }).data(colTransportation).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 10 }).data(colTravelRoutesNotes).draw();
+                tableTravellingRouteDetails.cell({ row: currentRowEdit, column: 11 }).data(editBtn + deleteBnt).draw();
+                $('#addNewRoute').modal('hide');
+            }
+        });
+
+
+
+        $('body').on('click', '.deleteRouteAtRedZone', function () {
+            var row = $(this).parents('tr');
+            tableTravellingRouteDetails.row(row).remove().draw();
+        })
+
+        $('input#addressIntl').change(function () {
+            $('div#provinceVn').hide();
+            $('div#districtVn').hide();
+            $('div#wardVn').hide();
+            $('div#country').show();
+            $('div#city').show();
+            $('input#addressVn').iCheck('uncheck');
+
+        });
+
+        $('input#addressVn').change(function () {
+            $('div#provinceVn').show();
+            $('div#districtVn').show();
+            $('div#wardVn').show();
+            $('div#country').hide();
+            $('div#city').hide();
+            $('input#addressIntl').iCheck('uncheck');
+
+        });
+
+
+        $("#travelFromCountryId").on('select2:select', function (e) {
+            if ($("#travelFromCountryId").val() != "VN" ) {
+                $("div#fromProvince").hide();
+                $("div#fromProvinceTextBox").show();
+                $("#travelFromIntl").val('');
+
+            } else {
+                $("div#fromProvince").show();
+                $("select#fromProvince").prop("disabled", false);
+                $("div#fromProvinceTextBox").hide();
+            }
+        });
+
+        $("#travelToCountryId").on('select2:select', function (e) {
+            if ($("#travelToCountryId").val() != "VN") {
+                $("div#toProvince").hide();
+                $("#travelToIntl").val('');
+                $("div#toProvinceTextBox").show();
+            } else {
+                $("div#toProvince").show();
+                $("select#toProvince").prop("disabled", false);
+                $("div#toProvinceTextBox").hide();
+            }
+        });
+
+        
+
+
+    });
+
+    $(document).on('focus', ':input', function () {
+        $(this).attr('autocomplete', 'new-password');
+    });
+    $("input.select2-input").attr('autocomplete', 'new-password');
+
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "date-euro-pre": function (a) {
+            var x;
+
+            if (a.trim() !== '') {
+                var frDatea = a.trim().split(' ');
+                var frTimea = (undefined != frDatea[1]) ? frDatea[1].split(':') : [00, 00, 00];
+                var frDatea2 = frDatea[0].split('/');
+                x = (frDatea2[2] + frDatea2[1] + frDatea2[0] + frTimea[0] + frTimea[1] + ((undefined != frTimea[2]) ? frTimea[2] : 0)) * 1;
+            }
+            else {
+                x = Infinity;
+            }
+
+            return x;
+        },
+
+        "date-euro-asc": function (a, b) {
+            return a - b;
+        },
+
+        "date-euro-desc": function (a, b) {
+            return b - a;
+        }
+    });
+
+
+
+</script>

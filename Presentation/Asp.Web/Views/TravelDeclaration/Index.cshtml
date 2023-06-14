@@ -1,0 +1,799 @@
+﻿
+@using src.Core
+@using src.Web.Common
+@inject IUserSession UserSession
+@using src.Core.Enums;
+@model IEnumerable<src.Web.Common.Models.TravelDeclarations.TravelDeclarationListOfUser>
+@{
+    ViewBag.Title = "Travel Declaration - Viet Nam Australia International School";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/lib/iCheck/all.css">
+<script src="~/lib/iCheck/icheck.min.js"></script>
+<script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+
+
+<style>
+    td.details-control {
+        background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+        cursor: pointer;
+    }
+
+    tr.shown td.details-control {
+        background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+    }
+
+    .GoToRecord {
+        background: url('https://assets-cflare.quickbasecdn.net/res/701b2bb-27/css/themes/classic/images/icons/icon_eye_gray.png') no-repeat center center;
+        cursor: pointer;
+    }
+
+    .the-legend {
+        border-style: none;
+        border-width: 0;
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 0;
+    }
+
+    .the-fieldset {
+        border: 2px groove threedface #444;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+</style>
+
+<link rel="stylesheet" href="~/lib/DataTables/select/select.dataTables.min.css" />
+<script src="~/lib/DataTables/select/dataTables.select.min.js"></script>
+<form method="post" asp-controller="TravelDeclaration">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Latest Requests</h3>
+            <div class="pull-right">
+                <a class="btn btn-danger" asp-action="Create">
+                    <i class="fa fa-plus" aria-hidden="true"></i> Add New
+                </a>
+
+                <a class="btn btn-success" id="ExportExcel">
+                    <i class="fa fa-download" aria-hidden="true"></i> Excel
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="box-body">
+                <div class="form-horizontal">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="Campus" class="control-label col-lg-2 text-right">Campus/Dept:</label>
+                            <div class="col-lg-10">
+                                @*<select id="Campus" name="Campus" style="width: 100%;" class="form-control select2">
+                                </select>*@
+                                <div id="campus"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-lg-2 text-right">
+                                Filter by status:
+                            </label>
+                            <div class="col-lg-10">
+                                <select id="request_Status" name="request_status" style="width: 100%;" asp-items="Html.GetEnumSelectList<RequestStatus>()" class="form-control select2">
+                                    <option value="0"> -- Select all --</option>
+                                </select>
+                                @*<div id="requestStatus"></div>*@
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <table class="table table-striped" id="list-request">
+                <thead>
+                    <tr>
+                        <th class="col-md-1" style="width: 10px;"></th>
+                        <th class="col-md-1" style="width: 10px;">No.</th>
+                        <th class="col-md-1">Request ID</th>
+                        <th class="col-md-1">Requester</th>
+                        <th class="col-md-1">Type of group</th>
+                        <th class="col-sm-1">Submitted Date</th>
+                        <th class="col-sm-3">Position</th>
+                        <th class="col-md-1">Campus</th>
+                        <th class="col-md-1">Departure Date</th>
+                        <th class="col-md-1">Returning Date</th>
+                        <th class="col-md-1">Verified by</th>
+                        <th class="col-md-1">Approved by</th>
+                        <th class="col-md-1">Status</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+            @if ((await AuthorizationService.AuthorizeAsync(User, Model, Constants.Permission_Workflow.IsApproverForMultiSelect)).Succeeded)
+            {
+                <div class="box-footer">
+                    <button type="button" id="btnSelectedRows" class="btn btn-success approveMultipleSelectedsForLineManager"><i class="fa fa-check-circle-o"></i> Verify</button>
+                    <button type="button" id="btnSelectedRows" class="btn btn-danger rejectMultipleSelectedsForLineManager"><i class="fa  fa-remove"></i> Reject</button>
+                </div>
+            }
+            @if ((await AuthorizationService.AuthorizeAsync(User, Model, Constants.Permission_Workflow.IsApproverForMultiSelectForECSD)).Succeeded)
+            {
+                <div class="box-footer">
+                    <button type="button" id="btnSelectedRowsForECSD" class="btn btn-success approveMultipleSelectedsForECSD"><i class="fa fa-check-circle-o"></i> Approve</button>
+                    <button type="button" id="btnSelectedRowsForECSD" class="btn btn-danger rejectMultipleSelectedsForECSD"><i class="fa fa-check-circle-o"></i> Reject</button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="modal fade in" id="mod-progress" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <div id="result" style="font-size: 1.1em; padding-bottom: 5px">
+                            <p id="progressBarParagraph"></p>
+                        </div>
+                        <div style="width: 30%; margin: 0 auto; display:none;">
+                            <div id="progressbar" style="width: 300px; height: 15px"></div>
+                            <br />
+                        </div>
+                        <div id="ProgressStripe" class="progress progress-striped active" style="position:relative; top:10px; width:100%;">
+                            <div id="ProgressMessage" class="progress-bar progress-bar-info" style="width: 100%; border:none;"></div>
+                        </div>
+                        <br />
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</form>
+<script type="text/javascript">
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "extract-date-pre": function (value) {
+            var date = $(value, 'span')[0].innerHTML;
+            date = date.split('/');
+            return Date.parse(date[1] + '/' + date[0] + '/' + date[2])
+        },
+        "extract-date-asc": function (a, b) {
+            return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        },
+        "extract-date-desc": function (a, b) {
+            return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+        }
+    });
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "formatted-num-pre": function (a) {
+            a = (a === "-" || a === "") ? 0 : a.replace(/[^\d\-\.]/g, "");
+            return parseFloat(a);
+        },
+
+        "formatted-num-asc": function (a, b) {
+            return a - b;
+        },
+
+        "formatted-num-desc": function (a, b) {
+            return b - a;
+        }
+    });
+
+    $('.select2').select2();
+    $(document).ready(function ()
+    {
+        $("#request_Status").on("change", function () {
+            if (this.value ==0) {
+                dataTable.search('', true).draw();
+            }
+            else {
+                var data = $("#request_Status option:selected").text();
+                dataTable.search(data).draw();
+            }
+
+        })
+        $("#ExportExcel").click(function (e) {
+            location.href = "/TravelDeclaration/ExportExcel?request_status=" + $("#request_Status").val();
+
+        });
+
+        $.ajax({
+            type: "GET",
+            url: '/BaseCategory/getAllCampusAndDepartment',
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data) {
+                $('#Campus').append($('<option>', { value: 0, text: '-- Select all--' }));
+                for (var i = 0; i < data.length; i++) {
+                    $('#Campus')
+                        .append($("<option></option>")
+                            .attr("value", data[i].Code)
+                            .text(data[i].CategoryName));
+                }
+            },
+            failure: function (response) {
+
+            },
+            complete: function () {
+                //getPhone($('#Contact').val());
+            }
+        });
+    });
+    $(document).ready(function () {
+        $("#Campus").on("change", function () {
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/ListAllRequestByCampus",
+                data: {
+                    campusCode: $("#Campus").val(),
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                success: function (data) {
+                    var parsed = JSON.parse(JSON.stringify(data));
+                    dataTable.clear().draw();
+                    dataTable.rows.add(parsed.data).draw();
+                    HideLoadingMessage();
+                }
+            })
+        })
+    });
+
+
+    $(document).ready(function () {
+        var travelObj = @Html.Raw(Json.Serialize(@Model));
+        dataTable = $('#list-request').DataTable({
+            initComplete: function () {
+                var api = this.api();
+                api.columns([7]).every(function () {
+                    var Destino = '#campus';
+                    var column = this;
+                    var select = $('<select class="form-control select2" style="width: 100%;"><option value="">-- Select all --</option></select>')
+                        .appendTo(Destino)
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            column.search(val ? '^' + val + '$' : '', true, false).draw();
+                        });
+
+                    column.data().unique().sort().each(function (d) {
+                        select.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                });
+                api.columns([12]).every(function () {
+                    var Destino = '#requestStatus';
+                    var column = this;
+                    var select = $('<select class="form-control select2 col-lg-10" style="width:100%"><option value="">-- Select all --</option></select>')
+                        .appendTo(Destino)
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            console.log(val);
+                            column.search(val ? '^' + val + '$' : '', true, false).draw();
+                        });
+
+                    column.data().unique().sort().each(function (d) {
+                        @*var selectStatus = '';
+                        switch (d) {
+                            case 1:
+                                selectStatus = 'Submitted';
+                                break;
+                            case 2:
+                                selectStatus = "Verified";
+                                break;
+                            case 3:
+                                selectStatus = "Rejected";
+                                break;
+                            case 4:
+                                selectStatus = "Approved";
+                                break;
+                            case 5:
+                                selectStatus = "Rejected";
+                                break;
+                            case 9:
+                                selectStatus = "Cancelled";
+                                break;
+                        }*@
+                        select.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                });
+                api.on('draw', function () {
+                  @*  console.log('here')
+                    api.columns([]).every(function (idx) {
+                        var Destino = '#requestStatus';
+                        var hoho = '#campus';
+                        var column = this;
+                        var idx = this.index();
+
+                        var select = $(table.column(idx)).find('select');
+                        if (select.val() === '') {
+                            select
+                                .empty()
+                                .append('<option value="" />');
+                            api.column(idx, {
+                                search: 'applied'
+                            }).data().unique().sort().each(function (d) {
+                                console.log(d)
+                                select.append('<option value="' + d + '">' + d + '</option>');
+                            });
+                        }
+                    });*@
+                });
+
+            },
+
+
+            @if (Model != null)
+              {
+                    <text>
+                        "data": travelObj,
+                        "columns": [
+
+                            { "data": null },
+                            {
+                                "title": "No.",
+                                "data":null
+                            },
+                            {
+                                "data": "request_id",
+
+                            },
+                            {
+                                "data": "Requester.UserName",
+                                "render": function (data, type, full, meta) {
+                                    return full.Requester.FirstName + " " + full.Requester.LastName;
+                                }
+                            },
+                            {
+                                "data": "typeOfGroup",
+                                "render": function (data, type, full, meta) {
+
+                                    if (full.typeOfGroup == 'MOET') {
+                                        return '<span class="label label-success"> MOET</span >'
+                                    }
+                                    if (full.typeOfGroup == 'CAM') {
+                                        return '<span class="label label-danger"> CAM</span >'
+                                    }
+                                }
+                            },
+                            {
+                                "data": "isValidSubmit",
+
+                            },
+                            { "data": "Requester.Position" },
+                            { "data": "Requester.Campus" },
+                            { "data": "departureDate" },
+                            { "data": "returningDate" },
+
+                            {
+                                "data": "nameOfLineManager",
+                            },
+                            {
+                                "data": "ECSDEmail",
+                            },
+                            {
+                                "data": "currentStatus",
+                                "render": function (data, type, full, meta) {
+
+                                    if (full.currentStatus == '1')
+                                    {
+                                        return '<span class="label label-warning"> Submitted </span >'
+                                    }
+                                    if (full.currentStatus == '2') {
+                                        return '<span class="label label-primary"> Verified</span >'
+                                    }
+                                    if (full.currentStatus == '3') {
+                                        return '<span class="label label-danger"> Rejected</span >'
+                                    }
+                                    if (full.currentStatus == '4') {
+                                        return '<span class="label label-success"> Approved</span >'
+                                    }
+                                    if (full.currentStatus == '5') {
+                                        return '<span class="label label-danger"> Rejected</span >'
+                                    }
+                                    if (full.currentStatus == '6') {
+                                        return '<span class="label label-success">HR Division approved </span >'
+                                    }
+                                    if (full.currentStatus == '7') {
+                                        return '<span class="label labRequestStatusl-danger">Division rejected</span >'
+                                    }
+                                    if (full.currentStatus ==  '9') {
+                                        return '<span class="label label-default">Cancelled</span >'
+                                    }
+
+                                }
+                            },
+                            {
+                                "data": "TravelDeclarationId",
+                                "render": function (data)
+                                    {
+                                        return "<a class='btn bg-light-blue-gradient btn-xs bnt-flat' target='_blank' href='/TravelDeclaration/Edit/" + data + "')><i class='fa fa-file-text-o'></i> Details</a>";
+                                    }
+                            },
+                            {
+                                className: 'details-control',
+                                orderable: false,
+                                data: null,
+                                defaultContent: ''
+                            }
+                        ],
+                     </text>
+              }
+
+
+            "columnDefs": [
+                {
+                    targets: 0,
+                    data: null,
+                    defaultContent: '',
+                    orderable: false,
+                    className: 'select-checkbox'
+                },
+                {
+                    "targets": 5,
+                    "render": function (data, type, full, meta) {
+
+                        if (full.isValidSubmit == 'Valid') {
+                            return '<label class="label label-success"><i class="fa fa-check-square-o"></i>' + full.createdOn + '</label >'
+                        }
+                        if (full.isValidSubmit == 'Invalid') {
+                            return '<label class="label label-danger"><i class="fa fa-warning"></i>' + full.createdOn + '</label >'
+                        }
+                    },
+                    "bSortable": false,
+
+                },
+                {
+                    "targets": 1,
+                    "bSortable": false,
+                },
+
+                { type: 'natural', targets: [2] },
+                { type: 'date-eu', targets: [8, 9] },
+
+            ],
+
+            "scrollX": true,
+            "retrieve": true,
+            "select": {
+                style: 'multi',
+                selector: 'td:first-child'
+            },
+            "language": {
+                    "emptyTable": "no data found."
+            },
+            "lengthChange": false,
+            "aaSorting": [],
+            "processing": true,
+            "pageLength": 20,
+            "order": [[8, 'desc']],
+            "rowGroup": {
+                dataSrc: 'Class'
+            },
+
+
+
+        });
+
+        dataTable.on('order.dt search.dt', function () {
+            dataTable.column(1, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                cell.innerHTML = i + 1;
+            });
+        }).draw();
+
+
+
+        var requestIdCollection = [];
+        //Approve multiple selection - Line Manager
+        $('.approveMultipleSelectedsForLineManager').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].TravelDeclarationId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection,2);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+        //Reject multiple selection - Line Manager
+        $('.rejectMultipleSelectedsForLineManager').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].TravelDeclarationId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection, 3);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+        //Approve multiple selection - ECSD
+        $('.approveMultipleSelectedsForECSD').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].TravelDeclarationId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection, 4);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+        //Reject multiple selection - ECSD
+        $('.rejectMultipleSelectedsForECSD').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].TravelDeclarationId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection, 5);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+
+        function fn_ApproveTravelRequest(arrListRequest,actionStatus) {
+            swal({
+                title: "Are you sure?",
+                text: "Do you want to process it !",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes!",
+                closeOnConfirm: true
+            },
+                function () {
+                     $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("actionMultipleRequest", "TravelDeclaration")',
+                            data: {
+                                "__RequestVerificationToken": $('input[name=__RequestVerificationToken]').val(),
+                                "listRequest": arrListRequest,
+                                "actionStatus": actionStatus
+                            },
+                            dataType: "json",
+                            success: function (recData) {
+                                if (recData.success) {
+                                    ReloadData();
+                                    ShowMessage(recData.message);
+                                } else {
+                                    ShowMessageError(recData.message);
+                                }
+                            },
+                            error: function(jqXHR,error, errorThrown) {
+                               if(jqXHR.status&&jqXHR.status==401){
+                                   window.location = "/Account/Login";
+                              }
+                            }
+                        });
+                });
+        }
+        function ReloadData() {
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/ListAllRequestByUser",
+                data: {
+                    campusCode: $("#Campus").val(),
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                success: function (data) {
+                    var parsed = JSON.parse(JSON.stringify(data));
+                    dataTable.clear().draw();
+                    dataTable.rows.add(parsed.data).draw();
+                    HideLoadingMessage();
+                }
+            })
+        }
+
+
+        $('#list-request tbody').on('click', '.select-checkbox', function () {
+            //$(this).toggleClass('selected');
+            var pos = dataTable.row(this).index();
+            var id = dataTable.row(pos).data().TravelDeclarationId;
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/TravelDeclaration/checkPermissionForApproveRequest",
+                data: {
+                    requestId: id,
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                success: function (data) {
+                    if (data.success == false) {
+                        ShowMessageError(data.message);
+                        dataTable.row(pos).deselect();
+                    }
+                }
+            })
+
+        });
+        $('#list-request tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = dataTable.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+            }
+        });
+        function format(rowData) {
+            var div = $('<div id="rowdetails"></div>')
+                .addClass('loading')
+                .text('Loading...');
+            let template = { '<>': 'div', 'html': '${title} ${year}' };
+            $.ajax({
+                url: '/TravelDeclaration/getTravelRouteDetails',
+                data: {
+                    id: rowData.TravelDeclarationId
+                },
+                dataType: 'json',
+                success: function (travellingRoutes) {
+                    if (travellingRoutes != null) {
+                        var rowDetails = '<table id="childtable" cellpadding="5" cellspacing="0" border="0" class="table  table-striped dataTable" style="padding-left:30px;">';
+                        rowDetails += '<thead style="background-color: #3c8dbc; color: #f9f9f9;">'+
+                            '<td>Date & Time</td>' +
+                            '<td>Location</td>' +
+                            '<td>Transportation</td>' +
+                            '</tr><tr></thead>';
+                        $.each(travellingRoutes, function (i, item) {
+                            rowDetails += '<tr>' +
+                                '<td>' + new Date(travellingRoutes[i].dateTravel).toLocaleString('vi-VN', { hour12: false }) + '</td>' +
+                                '<td>' + travellingRoutes[i].TravelRouteFullAddress + '</td>' +
+                                '<td>' + travellingRoutes[i].transportation + '</td>' +
+                                '</tr>';
+                        });
+                        rowDetails += '</table>';
+                        div
+                            .html(rowDetails)
+                            .removeClass('loading');
+                    }
+
+                }
+            });
+
+            return div;
+        }
+    });
+
+
+    (function () {
+
+        /*
+         * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
+         * Author: Jim Palmer (based on chunking idea from Dave Koelle)
+         * Contributors: Mike Grier (mgrier.com), Clint Priest, Kyle Adams, guillermo
+         * See: http://js-naturalsort.googlecode.com/svn/trunk/naturalSort.js
+         */
+        function naturalSort(a, b, html) {
+            var re = /(^-?[0-9]+(\.?[0-9]*)[df]?e?[0-9]?%?$|^0x[0-9a-f]+$|[0-9]+)/gi,
+                sre = /(^[ ]*|[ ]*$)/g,
+                dre = /(^([\w ]+,?[\w ]+)?[\w ]+,?[\w ]+\d+:\d+(:\d+)?[\w ]?|^\d{1,4}[\/\-]\d{1,4}[\/\-]\d{1,4}|^\w+, \w+ \d+, \d{4})/,
+                hre = /^0x[0-9a-f]+$/i,
+                ore = /^0/,
+                htmre = /(<([^>]+)>)/ig,
+                // convert all to strings and trim()
+                x = a.toString().replace(sre, '') || '',
+                y = b.toString().replace(sre, '') || '';
+            // remove html from strings if desired
+            if (!html) {
+                x = x.replace(htmre, '');
+                y = y.replace(htmre, '');
+            }
+            // chunk/tokenize
+            var xN = x.replace(re, '\0$1\0').replace(/\0$/, '').replace(/^\0/, '').split('\0'),
+                yN = y.replace(re, '\0$1\0').replace(/\0$/, '').replace(/^\0/, '').split('\0'),
+                // numeric, hex or date detection
+                xD = parseInt(x.match(hre), 10) || (xN.length !== 1 && x.match(dre) && Date.parse(x)),
+                yD = parseInt(y.match(hre), 10) || xD && y.match(dre) && Date.parse(y) || null;
+
+            // first try and sort Hex codes or Dates
+            if (yD) {
+                if (xD < yD) {
+                    return -1;
+                }
+                else if (xD > yD) {
+                    return 1;
+                }
+            }
+
+            // natural sorting through split numeric strings and default strings
+            for (var cLoc = 0, numS = Math.max(xN.length, yN.length); cLoc < numS; cLoc++) {
+                // find floats not starting with '0', string or 0 if not defined (Clint Priest)
+                var oFxNcL = !(xN[cLoc] || '').match(ore) && parseFloat(xN[cLoc], 10) || xN[cLoc] || 0;
+                var oFyNcL = !(yN[cLoc] || '').match(ore) && parseFloat(yN[cLoc], 10) || yN[cLoc] || 0;
+                // handle numeric vs string comparison - number < string - (Kyle Adams)
+                if (isNaN(oFxNcL) !== isNaN(oFyNcL)) {
+                    return (isNaN(oFxNcL)) ? 1 : -1;
+                }
+                // rely on string comparison if different types - i.e. '02' < 2 != '02' < '2'
+                else if (typeof oFxNcL !== typeof oFyNcL) {
+                    oFxNcL += '';
+                    oFyNcL += '';
+                }
+                if (oFxNcL < oFyNcL) {
+                    return -1;
+                }
+                if (oFxNcL > oFyNcL) {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+            "natural-asc": function (a, b) {
+                return naturalSort(a, b, true);
+            },
+
+            "natural-desc": function (a, b) {
+                return naturalSort(a, b, true) * -1;
+            },
+
+            "natural-nohtml-asc": function (a, b) {
+                return naturalSort(a, b, false);
+            },
+
+            "natural-nohtml-desc": function (a, b) {
+                return naturalSort(a, b, false) * -1;
+            },
+
+            "natural-ci-asc": function (a, b) {
+                a = a.toString().toLowerCase();
+                b = b.toString().toLowerCase();
+
+                return naturalSort(a, b, true);
+            },
+
+            "natural-ci-desc": function (a, b) {
+                a = a.toString().toLowerCase();
+                b = b.toString().toLowerCase();
+
+                return naturalSort(a, b, true) * -1;
+            }
+        });
+
+    }());
+
+
+
+</script>

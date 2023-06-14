@@ -1,0 +1,153 @@
+﻿@*
+
+*@
+@{
+}
+@model IEnumerable<src.Core.Domains.updateHistory>
+
+
+
+<div class="box box-danger">
+    <div class="box-header with-border">
+        <i class="fa fa-clock-o" aria-hidden="true"></i> Update History
+    </div>
+
+
+    <div class="row">
+        <div class="box-body">
+            <div class="row col-lg-12">
+                <input type="hidden" asp-for="@Model.FirstOrDefault().travelId" />
+                <input type="hidden" asp-for="@Model.FirstOrDefault().incidentId" />
+                <input type="hidden" asp-for="@Model.FirstOrDefault().redZoneFollowUpId" />
+
+
+                @if (Model.Select(t => t.travelNo) != null)
+                {
+                    <a class="control-label pull-right" style="margin-right:10px; text-decoration: underline"
+                       id="toTravel"> @Model.FirstOrDefault().travelNo </a>
+                }
+                else
+                {
+                    <a class="control-label pull-right" style="margin-right:10px; text-decoration: underline"></a>
+                }
+
+                @if (Model.Select(h => h.incidentNo) != null)
+                {
+                    <a class="control-label pull-right" style="margin-right:10px; text-decoration: underline"
+                       id="toIncident">  @Model.FirstOrDefault().incidentNo </a>
+                }
+                else
+                {
+                    <a class="control-label pull-right" style="margin-right:10px; text-decoration: underline"></a>
+                }
+
+
+
+                <label class="control-label text-blue text-bold pull-right" style="margin-right:20px">Incident ID/ Request Id: </label>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    <div class="row col-lg-12">
+        <span><label class="control-label text-red text-bold pull-left" style="padding-left:20px">Update History</label></span>
+        <a id="export" class="text-bold pull-right">Export</a>
+    </div>
+    <br>
+    <div class="box-body">
+        <table class="table table-striped" id="updateHistoryList">
+            <thead>
+                <tr>
+                    <th class="col-md-1">Số thứ tự / No.</th>
+                    <th class="col-md-2">Ngày / Date</th>
+                    <th class="col-md-3">Dữ liệu / Field</th>
+                    <th class="col-md-2">Giá trị cập nhật / Updated value</th>
+                    <th class="col-md-2">Người cập nhật/ Updated by</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+         var historyObj = @Html.Raw(Json.Serialize(@Model));
+         dataTable = $('#updateHistoryList').DataTable({
+
+            @if (Model != null)
+              {
+                    <text>
+                        "data": historyObj,
+                        "columns": [
+                            {
+                                "title": "No.",
+                                "data":null
+                            },
+                            {
+                                "data": "updatedDate",
+                                "render": function (data, type, full, meta) {
+                                    var result = data.split("-");
+                                    var daySplit = result[2].split("T");
+                                    return daySplit[0] + "/" + result[1] + "/" + result[0];
+                                }
+                            },
+                            {
+                                "data": "updatedField",
+                            },
+                            {
+                                "data": "updatedValue",
+                            },
+                            {
+                                "data": "updatedBy",
+
+                            }
+                        ],
+                     </text>
+              }
+
+
+            "columnDefs": [
+                {
+                    "targets": 1,
+                    "bSortable": false,
+                },
+            ],
+            "scrollX": true,
+            "retrieve": true,
+            "language": {
+                    "emptyTable": "no data found."
+            },
+            "lengthChange": false,
+            "aaSorting": [],
+            "processing": true,
+            "pageLength": 20,
+            "rowGroup": {
+                dataSrc: 'Class'
+            },
+
+
+        });
+
+        dataTable.on('order.dt search.dt', function () {
+            dataTable.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                cell.innerHTML = i + 1;
+            });
+        }).draw();
+
+    });
+
+
+
+    $("#export").click(function (e) {
+        location.href = "/HRBP/RedZoneFollowUp/ExportExcelUpdateHistory?id=" + $("#redZoneFollowUpId").val();
+    });
+
+    $("#toIncident").click(function (e) {
+        location.href = "/CovidIncident/Edit?id=" + $("#incidentId").val();
+    });
+
+    $("#toTravel").click(function (e) {
+        location.href = "/TravelDeclaration/Edit?id=" + $("#travelId").val();
+    });
+
+</script>

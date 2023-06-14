@@ -1,0 +1,398 @@
+﻿@using src.Core
+@model IEnumerable<src.Web.Common.Models.IncidentReportViewModel.IncidentReportListDto>
+@{
+    ViewBag.Title = "Covid Incident Report | Viet Nam Australia International School";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/lib/DataTables/select/select.dataTables.min.css" />
+<script src="~/lib/DataTables/select/dataTables.select.min.js"></script>
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Latest Requests</h3>
+            <div class="pull-right">
+                <a class="btn btn-danger" asp-controller="CovidIncident" asp-action="Create">
+                    <i class="fa fa-plus" aria-hidden="true"></i> Add New
+                </a>
+                <a class="btn btn-success" id="ExportExcel">
+                    <i class="fa fa-download" aria-hidden="true"></i> Excel
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="box-body">
+                <div class="form-group form-horizontal">
+                    <label for="Campus" class="control-label col-lg-1 text-right">Campus/Dept:</label>
+                    <div class="col-lg-11">
+                        <select id="Campus" name="Contact" style="width: 100%;" class="form-control select2"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <table class="table table-striped" id="list-request">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="col-md-1">No.</th>
+                        <th class="col-md-1">Request ID</th>
+                        <th class="col-md-2">Requester</th>
+                        <th class="col-md-1">Type of group</th>
+                        <th class="col-md-3">Position</th>
+                        <th class="col-md-1">Campus</th>
+                        <th class="col-md-1">Departure Date</th>
+                        <th class="col-md-1">Returning Date</th>
+                        <th class="col-md-1">Verified by</th>
+                        <th class="col-md-1">Approved by</th>
+                        <th class="col-md-1">Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+            @if ((await AuthorizationService.AuthorizeAsync(User, Model, Constants.Permission_Workflow_Covid.IsApproverForMultiSelect)).Succeeded)
+            {
+                <div class="box-footer">
+                    <button type="button" id="btnSelectedRows" class="btn btn-success approveMultipleSelectedsForLineManager"><i class="fa fa-check-circle-o"></i> Verified by</button>
+                    <button type="button" id="btnSelectedRows" class="btn btn-danger rejectMultipleSelectedsForLineManager"><i class="fa  fa-remove"></i> Rejected by</button>
+                </div>
+            }
+            @if ((await AuthorizationService.AuthorizeAsync(User, Model, Constants.Permission_Workflow_Covid.IsApproverForMultiSelectForECSD)).Succeeded)
+            {
+                <div class="box-footer">
+                    <button type="button" id="btnSelectedRowsForECSD" class="btn btn-success approveMultipleSelectedsForECSD"><i class="fa fa-check-circle-o"></i> Verified by</button>
+                    <button type="button" id="btnSelectedRowsForECSD" class="btn btn-danger rejectMultipleSelectedsForECSD"><i class="fa fa-check-circle-o"></i> Rejected by</button>
+                </div>
+            }
+        </div>
+    </div>
+<script type="text/javascript">
+    $('.select2').select2();
+    var dataTable;
+    $(document).ready(function () {
+
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/downloadFileHub")
+            .build();
+        connection.on("progressbar", function (message, percentage) {
+            ProgressBarModal("show", message + " " + percentage);
+            $('#ProgressMessage').width(percentage);
+            if (percentage == "100%") {
+                ProgressBarModal();
+            }
+        });
+        connection.start();
+
+        $("#ExportExcel").click(function (e) {
+            location.href = "/CovidIncident/ExportExcel?campus=" + $("#Campus").val();
+
+        });
+
+        $.ajax({
+            type: "GET",
+            url: '/BaseCategory/getAllCampusAndDepartment',
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data) {
+                $('#Campus').append($('<option>', { value: 0, text: '-- Select all--' }));
+                for (var i = 0; i < data.length; i++) {
+                    $('#Campus')
+                        .append($("<option></option>")
+                            .attr("value", data[i].Code)
+                            .text(data[i].CategoryName));
+                }
+            },
+            failure: function (response) {
+
+            },
+            complete: function () {
+                //getPhone($('#Contact').val());
+            }
+        });
+    });
+    $(document).ready(function () {
+        $("#Campus").on("change", function () {
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/CovidIncident/ListAllRequestByCampus",
+                data: {
+                    campusCode: $("#Campus").val(),
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                success: function (data) {
+                    var parsed = JSON.parse(JSON.stringify(data));
+                    dataTable.clear().draw();
+                    dataTable.rows.add(parsed.data).draw();
+                    HideLoadingMessage();
+                }
+            })
+        })
+    });
+
+
+    $(document).ready(function () {
+        var incidentReportObj = @Html.Raw(Json.Serialize(@Model));
+        dataTable = $('#list-request').DataTable({
+             @if (Model != null)
+                {
+                    <text>
+                        "data": incidentReportObj,
+                        "columns": [
+                            { "data": null },
+                            {
+                                "title": "No.",
+                                render: function (data, type, row, meta) {
+                                    return meta.row + meta.settings._iDisplayStart + 1;
+                                }
+                            },
+                            { "data": "request_id" },
+                            {
+                                "data": "Requester.UserName",
+                                "render": function (data, type, full, meta) {
+                                    return full.Requester.FirstName + " " + full.Requester.LastName;
+                                }
+                            },
+
+                            {
+                                "data": "typeOfGroup",
+                                "render": function (data, type, full, meta) {
+
+                                    if (full.typeOfGroup == 'MOET') {
+                                        return '<span class="label label-success"> MOET</span >'
+                                    }
+                                    if (full.typeOfGroup == 'CAM') {
+                                        return '<span class="label label-danger"> CAM</span >'
+                                    }
+                                }
+                            },
+                            { "data": "Requester.Position" },
+                            { "data": "Requester.Campus" },
+                            { "data": "departureDate" },
+                            { "data": "returningDate" },
+                            {
+                                "data": "nameOfLineManager",
+                            },
+                            {
+                                "data": "ECSDEmail",
+                            },
+                            {
+                                "data": "status",
+                                "render": function (data, type, full, meta) {
+                                    if (full.currentStatus == '1') {
+                                        return '<span class="label label-warning"> Submitted</span >'
+                                    }
+                                    if (full.currentStatus == '2') {
+                                        return '<span class="label label-primary"> Verified</span >'
+                                    }
+                                    if (full.currentStatus == '3') {
+                                        return '<span class="label label-danger"> Rejected</span >'
+                                    }
+                                    if (full.currentStatus == '4') {
+                                        return '<span class="label label-success"> Approved</span >'
+                                    }
+                                    if (full.currentStatus == '5') {
+                                        return '<span class="label label-danger"> Rejected</span >'
+                                    }
+                                    if (full.currentStatus == '6') {
+                                        return '<span class="label label-success">HR Division approved </span >'
+                                    }
+                                    if (full.currentStatus == '7') {
+                                        return '<span class="label label-danger">Division rejected</span >'
+                                    }
+                                }
+                            },
+                            {
+                                "data": "IncidentReportId",
+                                "render": function (data) {
+                                    return "<a class='btn bg-light-blue-gradient btn-xs bnt-flat' target='_blank' href='/CovidIncident/Edit/" + data + "')><i class='fa fa-file-text-o'></i> Details</a>";
+                                }
+                            }
+
+                        ],
+             </text>
+        }
+
+            "columnDefs": [
+                {
+                    targets: 0,
+                    data: null,
+                    defaultContent: '',
+                    orderable: false,
+                    className: 'select-checkbox'
+                }
+
+            ],
+            "scrollX": true,
+            "retrieve": true,
+            "select": {
+                style: 'multi',
+                selector: 'td:first-child'
+            },
+            "language": {
+                "emptyTable": "no data found."
+            },
+            "lengthChange": false,
+            "aaSorting": [],
+            "processing": true,
+            "pageLength": 20,
+            //"order": [[2, 'asc']],
+            "rowGroup": {
+                dataSrc: 'Class'
+            },
+        });
+        var requestIdCollection = [];
+        //Approve multiple selection - Line Manager
+        $('.approveMultipleSelectedsForLineManager').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].IncidentReportId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection,2);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+        //Reject multiple selection - Line Manager
+        $('.rejectMultipleSelectedsForLineManager').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].IncidentReportId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection, 3);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+        //Approve multiple selection - ECSD
+        $('.approveMultipleSelectedsForECSD').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].IncidentReportId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection, 4);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+        //Reject multiple selection - ECSD
+        $('.rejectMultipleSelectedsForECSD').on('click', function () {
+            var tblData = dataTable.rows('.selected').data();
+            var tmpUserId;
+            requestIdCollection = [];
+
+            $.each(tblData, function (i, val) {
+                tmpUserId = tblData[i].IncidentReportId;
+                requestIdCollection.push(tmpUserId)
+            });
+            if (Array.isArray(requestIdCollection) && requestIdCollection.length > 0) {
+                fn_ApproveTravelRequest(requestIdCollection, 5);
+            }
+            else {
+                ShowMessageError("Please select first then approve request !");
+            }
+        })
+
+        function fn_ApproveTravelRequest(arrListRequest,actionStatus) {
+            swal({
+                title: "Are you sure?",
+                text: "Do you want to process it !",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes!",
+                closeOnConfirm: true
+            },
+                function () {
+                     $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("actionMultipleRequest", "TravelDeclaration")',
+                            data: {
+                                "__RequestVerificationToken": $('input[name=__RequestVerificationToken]').val(),
+                                "listRequest": arrListRequest,
+                                "actionStatus": actionStatus
+                            },
+                            dataType: "json",
+                            success: function (recData) {
+                                if (recData.success) {
+                                    ReloadData();
+                                    ShowMessage(recData.message);
+                                } else {
+                                    ShowMessageError(recData.message);
+                                }
+                            },
+                            error: function(jqXHR,error, errorThrown) {
+                               if(jqXHR.status&&jqXHR.status==401){
+                                   window.location = "/Account/Login";
+                              }
+                            }
+                        });
+                });
+        }
+        function ReloadData() {
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                "url": "/CovidIncident/ListAllRequestByUser",
+                data: {
+                    campusCode: $("#Campus").val(),
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                    ShowLoadingMessage();
+                },
+                success: function (data) {
+                    var parsed = JSON.parse(JSON.stringify(data));
+                    dataTable.clear().draw();
+                    dataTable.rows.add(parsed.data).draw();
+                    HideLoadingMessage();
+                }
+            })
+        }
+
+        $('#list-request tbody').on('click', '.select-checkbox', function () {
+            //$(this).toggleClass('selected');
+            var pos = dataTable.row(this).index();
+            var id = dataTable.row(pos).data().IncidentReportId;
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "/CovidIncident/checkPermissionForApproveRequest",
+                data: {
+                    requestId: id,
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                success: function (data) {
+                    if (data.success == false) {
+                        ShowMessageError(data.message);
+                        dataTable.row(pos).deselect();
+                    }
+                }
+            })
+
+        });
+    });
+</script>

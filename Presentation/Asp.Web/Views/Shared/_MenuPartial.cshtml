@@ -1,0 +1,9 @@
+﻿@using src.Core
+@using src.Web.Extensions
+<div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+    <ul class="nav navbar-nav">
+        <li class="@(Html.IsMenuActive("Administration/Users/List") ? "active" : "")"><a href="~/Administration/Users/List"> Users</a></li>
+        <li class="@(Html.IsMenuActive("/Administration/EmailTemplates") ? "active" : "")"><a href="~/Administration/EmailTemplates/List"></i>@Constants.MainPages.EmailTemplates</a></li>
+        <li class="@(Html.IsMenuActive("/Administration/Settings/EmailConfig") ? "active" : "")"><a href="~/Administration/Settings/EmailConfig">Config</a></li>
+    </ul>
+</div>

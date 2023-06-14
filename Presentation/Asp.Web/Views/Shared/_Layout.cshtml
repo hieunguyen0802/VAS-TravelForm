@@ -1,0 +1,89 @@
+﻿@using src.Core
+@using src.Web.Common
+@using Microsoft.Extensions.Options
+
+@inject IUserSession UserSession
+@inject IOptions<AppSettings> AppSettings
+@using src.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> SharedLocalizer
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"]</title>
+    @await Html.PartialAsync("_StylesScriptsPartial")
+    <style type="text/css">
+        .container {
+            width: auto !important;
+        }
+    </style>
+    @RenderSection("Scripts", required: false)
+</head>
+<body class="skin-red layout-top-nav">
+
+    <div class="alert-container"></div>
+    <div class="wrapper">
+        <header class="main-header">
+            <nav class="navbar navbar-static-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">VAS - Travel Approval System</></a>
+                    </div>
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+                        </ul>
+                    </div>
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+                            @if (User.Identity.IsAuthenticated && UserSession.IsInRole(Constants.RoleNames.Administrator))
+                            {
+                                <li class="bg-green">
+                                    <a href="@Url.Action("Index", "Dashboard", new {area = Constants.Areas.Administration})">
+                                        <i class="fa fa-gear"></i> Administration Dashboard
+                                    </a>
+                                </li>
+                            } else if (User.Identity.IsAuthenticated && UserSession.IsInRole(Constants.RoleNames.HRBP))
+                            { 
+                                <li class="bg-blue">
+                                    <a href="@Url.Action("Index", "Dashboard", new {area = Constants.Areas.HRBP})">
+                                        <i class="fa fa-gear"></i> HRBP Dashboard
+                                    </a>
+                                </li>
+                                }
+
+                            @await Html.PartialAsync("_LoginPartial")
+                        </ul>
+                    </div>
+                </div>
+
+            </nav>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="container">
+                <section class="content">
+                    @RenderBody()
+                </section>
+            </div>
+        </div>
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> @AppSettings.Value.Application.Version
+            </div>
+            <strong class="pull-left"> @SharedLocalizer["VAS"]</strong>
+            <br />
+        </footer>
+    </div>
+
+
+    @await Html.PartialAsync("_Alerts")
+
+</body>
+</html>
+<script type="text/javascript">
+
+</script>

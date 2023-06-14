@@ -1,0 +1,111 @@
+﻿@using src.Core
+@model src.Core.Data.SearchDataRequest
+@{
+    ViewBag.Title = "Report - Covid Incident";
+}
+
+<script type="text/javascript" src="~/lib/admin-lte/plugins/daterangepicker/moment.js"></script>
+<style>
+    .the-legend {
+        border-style: none;
+        border-width: 0;
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 0;
+    }
+
+    .the-fieldset {
+        border: 2px groove threedface #444;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+</style>
+<div class="box box-danger">
+    <div class="box-header with-border">
+        <i class="fa fa-bug" aria-hidden="true"></i> @ViewBag.Title
+    </div>
+
+    <form asp-action="CovidIncident_ExportToExcel" asp-controller="Report" id="exportCovidIncident" class="form-horizontal">
+        <div class="box-body">
+            <div class="form-group">
+                <div class="col-lg-6">
+                    <label asp-for="from" class="control-label">From: </label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" asp-for="from" class="form-control datepickerJquery"  />
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+                    <label asp-for="to" class="control-label">To: </label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" asp-for="to" class="form-control datepickerJquery"  />
+                    </div>
+                </div>
+            </div>
+            <fieldset class="well the-fieldset">
+                <legend class="the-legend">Filter by <span class="text-bold text-red">Destinations</span></legend>
+                <div class="form-group">
+                    <div class="col-lg-4">
+                        <label>City/Province</label>
+                        <select asp-for="travelLocation" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="well the-fieldset">
+                <legend class="the-legend">Filter by <span class="text-bold text-blue">Travel Routes</span></legend>
+                <div class="form-group">
+                    <div class="col-lg-4">
+                        <label>City/Province</label>
+                        <select asp-for="cityOfTravelRoutes" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>District<span class="field-required">*</span></label>
+                        <select asp-for="districtOfTravelRoutes" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Ward</label>
+                        <select asp-for="wardOfTravelRoutes" class="form-control select2" style="width: 100%;">
+                            <option value="">Please select one</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="box-footer">
+            <div class="form-group">
+                <div class="col-sm-12">
+                    @* <button type="button" id="search" class="btn btn-microsoft"> <i class="fa fa-search"></i> Find</button> *@
+                    <button type="submit"  class="btn btn-danger"> <i class="fa fa-file-excel-o"></i> Excel</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".datepickerJquery").datetimepicker({
+            dayOfWeekStart: 1,
+            lang: 'en',
+            disabledDates: ['1986/01/08', '1986/01/09', '1986/01/10'],
+            startDate: new Date(),
+            format: 'd/m/Y',
+            closeOnDateSelect: true,
+            timepicker: false,
+        });
+
+   
+    });
+</script>

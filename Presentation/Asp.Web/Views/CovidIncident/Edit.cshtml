@@ -1,0 +1,311 @@
+﻿@using src.Core
+@using System.IO
+@using src.Core.Enums
+@model src.Web.Common.Models.IncidentReportViewModel.IncidentReportViewModel
+@{ ViewBag.Title = "Edit | Covid Incident Report - Vietnam Australia International School";
+    Layout = "_Layout"; }
+<link rel="stylesheet" href="~/lib/iCheck/all.css">
+<script src="~/lib/iCheck/icheck.min.js"></script>
+<form id="submitRequest" asp-controller="CovidIncident" asp-action="SaveRequest" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form" class="form-horizontal" enctype="multipart/form-data">
+    <div class="box box-danger">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="col-xs-4">
+                        <img src="~/images/Logo.png" class="img-responsive" />
+                    </div>
+                    <div class="col-xs-8">
+                        <h3 class="text-black text-bold">BẢN TƯỜNG TRÌNH COVID-19<br /></h3>
+                        <h3 class="text-purple text-bold"><i>COVID-19 INCIDENT REPORT</i></h3>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th style="width:50%">Bộ phận/Issued by:</th>
+                                <td>HR-AD</td>
+                            </tr>
+                            <tr>
+                                <th>Số quản lý/ Code</th>
+                                <td>CV-IR/HR-AD/0012C_001 (1)/</td>
+                            </tr>
+                            <tr>
+                                <th>Phát hành/ Issued on:</th>
+                                <td>03/12/2020</td>
+                            </tr>
+                            <tr>
+                                <th>Trang/ No. of page:</th>
+                                <td>2</td>
+                            </tr>
+                            @if (Model.request_id != null)
+                            {
+                                <tr>
+                                    <th>Request No:</th>
+                                    <td>@Model.request_id</td>
+                                </tr>
+}
+                            @if (Model.createdOn != null)
+                            {
+                                <tr>
+                                    <th>Created On:</th>
+                                    <td>@Model.createdOn.Value.ToString("dd/MM/yyyy")</td>
+                                </tr>
+}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-header with-border">
+
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <h3 class="box-title"><span class="text-bold">Các bước cần thực hiện </span>/ <span class="text-bold text-purple"><i>Steps to complete:</i></span></h3>
+                    <div class="col-sm-6">
+                        <div class="text-justify">
+                            <span>
+                                <u><i>1. Liên hệ hotline y tế (19009095) của cơ quan nhà nước để được hướng dẫn & điền tờ khai y tế (tokhaiyte.vn) nếu được yêu cầu.</i></u>
+                            </span>
+                            <br />
+                            <span class="text-purple"><i>Call Ministry of Health Hotline (19009095) for instructions and complete health declaration form (tokhaiyte.vn) when requested.</i></span>
+                            <br />
+                            <span> <u><i>2.  Làm bản tường trình theo biểu mẫu của VAS gởi về Khối HR ngay khi phát sinh (Form CV-IR/HR-AD/0012C_001 - Bản tường trình Covid-19)/</i></u></span>
+                            <br />
+                            <span class="text-purple"><i>Fill in VAS's templated form and send to HR Division as soon as possible (Form CV-IR/HR-AD/0012C_001 - Bản tường trình Covid-19)</i></span>
+                            <br />
+                            <span><u><i>3. Cập nhật tình trạng sức khỏe hiện tại cho Quản lý trực tiếp</i></u>/ </span><span class="text-purple"><i>Update their health condition regularly with the Line Managers</i></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-justify">
+                            <span class="text-purple">
+                                <u><i>4. Thực hiện cách ly theo hướng dẫn từ cơ quan y tế và quy định của VAS</i></u>
+                            </span>
+                            <br />
+                            <span class="text-purple"><i>Quarantine as requested by medical offices and VAS</i></span>
+                            <br />
+                            <span class="text-purple"> <u><i>5. Khuyến khích cập nhật thông tin trên ứng dụng Bluezone.gov.vn</i></u></span>
+                            <br />
+                            <span class="text-purple"><i>Update information about their health on Bluezone.gov.vn</i></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <label class="control-label" asp-for="@Model.CovidIncidentReportStatus"><span>Thuộc đối tượng đi về từ vùng dịch:<span class="field-required">*</span></span></label>
+                            <br />
+                            <span class="text-purple">Returning from red zone</span>
+                            @*<span asp-validation-for="@Model.type" class="text-danger"></span>*@
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" asp-for="isReturnFromRedZone" class="minimal-red" required>
+                            </label>
+                        </div>
+
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <label><span>Thuộc đối tượng tiếp xúc với người nghi nhiễm:<span class="field-required">*</span></span></label>
+                            <br />
+                            <span class="text-purple">Contacting with a suspect case of Covid-19</span>
+                            @*<span asp-validation-for="@Model.type" class="text-danger"></span>*@
+                        </div>
+                        <label>
+                            <input type="checkbox" asp-for="isContactWithSuspectCase" class="minimal-red">
+                        </label>
+                    </div>
+                </div>
+                <div id="redZoneArea" class="col-md-6">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <span>Địa điểm vùng dịch đã đến/<span class="text-purple"><i>Red zone</i></span></span>
+                            <br />
+                            <span>
+                                <i>(Ghi rõ: Số nhà, tên đường, Phường, Quận/Huyện, Tỉnh/TP) / <span class="text-purple">(State clearly: House number, Street, Ward, District, City/Province)</span></i>
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <label>City/Province</label>
+                            <select asp-for="redZoneProvinceId" asp-items="@Model.Provinces" class="form-control select2" style="width: 100%;">
+                                <option value="">--Please select one--</option>
+                            </select>
+
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="redZoneDistrictId">Quận - Huyện/District</label>
+                            <select asp-for="redZoneDistrictId" class="form-control select2" style="width: 100%;">
+                                <option value="">--Please select one--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="redZoneWardId">Ward/ Phường</label>
+                            <select asp-for="redZoneWardId" class="form-control select2" style="width: 100%;">
+                                <option value="">--Please select one--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="redZoneHomeAddress">Số nhà, tên đường/House number, Street</label>
+                            <input type="text" asp-for="redZoneHomeAddress" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @await Html.PartialAsync("_AddOrUpdate", Model)
+            <input type="hidden" asp-for="IncidentReportId" />
+            @if (Model.status == RequestStatus.Submitted)
+            {
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model, Constants.Permission_Workflow_Covid.IsApprover)).Succeeded)
+                {
+                    <div class="col-lg-12">
+                        <h2 class="page-header">
+                            <i class="fa fa-comment-o"></i> Ý kiến của cấp Quản lý trực tiếp/ <span class="text-purple"><i></i>Line Manager’s comments</span>
+                            <small class="pull-right">Date: @(Model.dateOfStatus != null?Model.dateOfStatus.Value.ToString("dd/MM/yyyy"):"")</small>
+                        </h2>
+                        <textarea class="textarea" asp-for="comment" placeholder="Place some text here" style="width: 100%; height: 100px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                        <span asp-validation-for="comment" class="text-danger"></span>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <button style="margin-top:10px;" type="submit" id="approve" formaction="/CovidIncident/approveRequest" class="btn btn-success"><i class="fa fa-check-square-o"></i> Approve</button>
+                        <button style="margin-top:10px;" type="submit" id="reject" formaction="/CovidIncident/rejectRequest" class="btn btn-danger"><i class="fa fa-user-times"></i> Reject</button>
+
+                    </div>}}
+
+            @if (Model.status != RequestStatus.Submitted && (Model.status == RequestStatus.lineManager_Approved || Model.status == RequestStatus.lineManager_Rejected))
+            {
+                <div class="col-lg-12">
+                    <div class="direct-chat-msg">
+                        <span class="box-title text-blue text-bold"><i class="fa fa-comments-o"></i>  Ý kiến của cấp Quản lý trực tiếp/ Line Manager’s comments</span>
+                        <div class="direct-chat-info clearfix">
+                            <span class="direct-chat-name pull-left"> @Model.nameOfLineManager</span>
+                            <span class="direct-chat-timestamp pull-right">@(Model.dateOfStatus !=null?Model.dateOfStatus.Value.ToString("dd/MM/yyyy"):"")</span>
+                        </div>
+
+                        <img class="direct-chat-img" src="~/images/buddy_chat.png" alt="Message User Image">
+                        <div class="direct-chat-text">
+                            <span class="label label-@(Model.status == RequestStatus.lineManager_Approved ? "success" : "danger")">
+                                <i class="fa fa-clock-o"></i> @(Model.status.GetDisplayName())
+                            </span>
+                            <cite style="padding:10px;">@Model.comment</cite>
+                        </div>
+                    </div>
+                </div>      }
+            <!--ECSD Division Area-->
+            @if (Model.ECSDVerifyStatus == null)
+            {
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model, Constants.Permission_Workflow_Covid.isECSDGroup)).Succeeded)
+                {
+                    <div class="col-lg-12">
+                        <h2 class="page-header">
+                            <i class="fa fa-comment-o"></i>  Ý kiến của Giám Đốc Khối/ECSD/
+                            <span class="text-purple"><i>/Division Director’s/ ECSD’s comment</i></span>
+                            <small class="pull-right">Date: @(Model.ECSDCommentDate != null ? Model.ECSDCommentDate.Value.ToString("dd/MM/yyyy"):"")</small>
+                        </h2>
+                        <textarea class="textarea" asp-for="ECSDComment" placeholder="Place some text here" style="width: 100%; height: 100px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                        <span asp-validation-for="ECSDComment" class="text-danger"></span>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <button style="margin-top:10px;" type="submit" id="approve" formaction="/CovidIncident/ECSDApproval" class="btn btn-success"><i class="fa fa-check-square-o"></i> Approve</button>
+                        <button style="margin-top:10px;" type="submit" id="reject" formaction="/CovidIncident/ECSDReject" class="btn btn-danger"><i class="fa fa-user-times"></i> Reject</button>
+                    </div>}}
+
+            @if ((Model.ECSDVerifyStatus == RequestStatus.ecsd_Approved || Model.ECSDVerifyStatus == RequestStatus.ecsd_Rejected))
+            {
+                <div class="col-lg-12">
+                    <div class="direct-chat-msg">
+                        <span class="box-title text-red text-bold"><i class="fa fa-comments-o"></i>  Ý kiến của Giám Đốc Khối/ECSD/ <span class="text-red">Division Director’s/ ECSD’s comment</span></span>
+                        <div class="direct-chat-info clearfix">
+                            <span class="direct-chat-name pull-left"> @Model.ECSDEmail</span>
+                            <span class="direct-chat-timestamp pull-right">@(Model.ECSDCommentDate != null ? Model.ECSDCommentDate.Value.ToString("dd/MM/yyyy"):"")</span>
+                        </div>
+
+                        <img class="direct-chat-img" src="~/images/buddy_chat.png" alt="Message User Image">
+                        <div class="direct-chat-text">
+                            <span class="label label-@(Model.ECSDVerifyStatus == RequestStatus.ecsd_Approved ? "success" : "danger")">
+                                <i class="fa fa-clock-o"></i> @(Model.ECSDVerifyStatus.GetDisplayName())
+                            </span>
+                            <cite style="padding:10px;">@Model.ECSDComment</cite>
+                        </div>
+
+                    </div>
+                </div>      }
+
+            <!--HR Division Area-->
+            @if (Model.ECSDVerifyStatus == RequestStatus.ecsd_Approved && Model.HRVerifyStatus == null)
+            {
+                @if ((await AuthorizationService.AuthorizeAsync(User, Constants.Permission_Workflow_Covid.isHRDivisionGroups)).Succeeded)
+                {
+                    <div class="col-lg-12">
+                        <h2 class="page-header">
+                            <i class="fa fa-comment-o"></i>  Ý kiến của Giám Đốc Khối Nhân sự
+                            <span class="text-purple"><i>/HR Division Director’s commentst</i></span>
+                            <span class="direct-chat-timestamp pull-right">@(Model.HRCommentDate != null ? Model.HRCommentDate.Value.ToString("dd/MM/yyyy"):"")</span>
+                        </h2>
+                        <textarea class="textarea" asp-for="HRComment" placeholder="Place some text here" style="width: 100%; height: 100px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                        <span asp-validation-for="HRComment" class="text-danger"></span>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <button style="margin-top:10px;" type="submit" formaction="/CovidIncident/ECSDApproval" class="btn btn-success"><i class="fa fa-check-square-o"></i> Approve</button>
+                        <button style="margin-top:10px;" type="submit" formaction="/CovidIncident/rejectRequest" class="btn btn-danger"><i class="fa fa-user-times"></i> Reject</button>
+
+                    </div>}}
+
+            @if (Model.ECSDVerifyStatus != RequestStatus.ecsd_Approved && (Model.status == RequestStatus.hr_approved || Model.status == RequestStatus.hr_reject))
+            {
+                <div class="col-lg-12">
+                    <div class="direct-chat-msg">
+                        <span class="box-title text-maroon text-bold"><i class="fa fa-comments-o"></i>  Ý kiến của Giám Đốc Khối Nhân sự/ <span class="text-maroon">HR Division Director’s commentst</span></span>
+                        <div class="direct-chat-info clearfix">
+                            <span class="direct-chat-name pull-left"> @Model.HRComment</span>
+                            <span class="direct-chat-timestamp pull-right">@(Model.HRCommentDate != null ? Model.HRCommentDate.Value.ToString("dd/MM/yyyy"):"")</span>
+                        </div>
+
+                        <img class="direct-chat-img" src="~/images/buddy_chat.png" alt="Message User Image">
+                        <div class="direct-chat-text">
+                            <span class="label label-@(Model.status == RequestStatus.hr_approved ? "success" : "danger")">
+                                <i class="fa fa-clock-o"></i> @(Model.status.GetDisplayName())
+                            </span>
+                            <cite style="padding:10px;">@Model.HRComment</cite>
+                        </div>
+                    </div>
+                </div>      }
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".datetravel").inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
+        $(".datetravel").inputmask("99/99/9999", { "clearIncomplete": true });
+
+        if ('@Model.backToWorkStatus' != null) {
+             var backToWordValue = '@((int)Model.backToWorkStatus)'
+            $(':radio[name=backToWorkStatus][value=' + backToWordValue + ']').iCheck('check');
+        }
+
+        if ('@Model.ConfirmToTest' != null) {
+              var ConfirmToTestValue = '@((int)Model.ConfirmToTest)'
+              $(':radio[name=ConfirmToTest][value=' + ConfirmToTestValue + ']').iCheck('check');
+        }
+
+        if ('@Model.testingStatus' != null) {
+            var testingStatusValue = '@((int)Model.testingStatus)'
+            $(':radio[name=testingStatus][value=' + testingStatusValue + ']').iCheck('check');
+        }
+
+        if ('@Model.redZoneProvinceId' != null) {
+            LoadDistrict("redZoneProvinceId", "redZoneDistrictId", "redZoneWardId");
+        }
+    });
+
+</script>

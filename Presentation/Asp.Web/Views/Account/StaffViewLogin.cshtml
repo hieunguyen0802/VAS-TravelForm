@@ -1,0 +1,42 @@
+﻿@using src.Core
+@model src.Web.Common.Models.AccountViewModels.StaffLoginViewModel
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = Constants.MainPages.Login;
+}
+<p class="login-box-msg">Sign in to start your session</p>
+<form asp-controller="Account" asp-action="StaffViewLogin" asp-route-returnurl="@ViewData[" ReturnUrl"]" method="post" role="form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="UserName" class="control-label"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password" class="control-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <button id="submit-button" type="submit" class="btn btn-primary btn-block">Sign In</button>
+    </div>
+    <div class="form-footer">
+        <div class="row">
+            <div class="col-xs-7">
+                <i class="fa fa-unlock-alt"></i>
+                <a asp-action="ForgotPassword">Forgot your password?</a>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+
+            $("#@Html.IdFor(model => model.UserName)").focus();
+
+            $("form").data("validator").settings.submitHandler = function (form) {
+                $("#submit-button").html("<i class=\"fa fa-spinner fa-pulse\"></i> Signing In...").prop('disabled', true);
+                form.submit();
+            };
+    });
+</script>

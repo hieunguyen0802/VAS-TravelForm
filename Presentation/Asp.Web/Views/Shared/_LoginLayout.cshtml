@@ -1,0 +1,32 @@
+﻿@using src.Core
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"]</title>
+    @await Html.PartialAsync("_StylesScriptsPartial")
+</head>
+
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <div class="login-logo">
+                <img class="img-responsive logo" src="~/images/Logo.png" alt="VAS">
+            </div>
+        </div>
+        <div class="box box-danger">
+            <br />
+            @await Html.PartialAsync("_SelectLanguagePartial")
+            <div class="login-box-body">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</body>
+</html>

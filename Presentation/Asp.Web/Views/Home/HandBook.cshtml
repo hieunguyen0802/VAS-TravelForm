@@ -1,0 +1,193 @@
+﻿@using src.Core
+@using System.IO
+@model src.Web.Common.Models.FileManagerModels.FileManagerModel
+@{
+    ViewBag.Title = Constants.MainPages.Home;
+    Layout = "_Layout";
+}
+<style>
+    body {
+        background-color: #9575CD
+    }
+
+    .scroll {
+        color: #fff;
+        margin-top: 100px
+    }
+
+    #toTopBtn {
+        position: fixed;
+        bottom: 26px;
+        right: 39px;
+        z-index: 98;
+        padding: 21px;
+        background-color: hsla(5, 76%, 62%, .8)
+    }
+
+    .js .cd-top--fade-out {
+        opacity: .5
+    }
+
+    .js .cd-top--is-visible {
+        visibility: visible;
+        opacity: 1
+    }
+
+    .js .cd-top {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity .3s, visibility .3s, background-color .3s
+    }
+
+    .cd-top {
+        position: fixed;
+        bottom: 20px;
+        bottom: var(--cd-back-to-top-margin);
+        right: 20px;
+        right: var(--cd-back-to-top-margin);
+        display: inline-block;
+        height: 40px;
+        height: var(--cd-back-to-top-size);
+        width: 40px;
+        width: var(--cd-back-to-top-size);
+        box-shadow: 0 0 10px rgba(0, 0, 0, .05) !important;
+        background: url(https://res.cloudinary.com/dxfq3iotg/image/upload/v1571057658/cd-top-arrow.svg) no-repeat center 50%;
+        background-color: hsla(5, 76%, 62%, .8);
+        background-color: hsla(var(--cd-color-3-h), var(--cd-color-3-s), var(--cd-color-3-l), 0.8)
+    }
+
+    .height {
+        height: 3000px
+    }
+</style>
+<link rel="stylesheet" href="~/lib/iCheck/all.css">
+<script src="~/lib/iCheck/icheck.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.js"></script>
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.lazy/1.7.9/jquery.lazy.plugins.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.plugins.min.js"></script>
+
+<div class="form-group">
+    <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
+        <label style="font-weight:normal !important;" class="text-justify">
+            <input type="checkbox" id="chkAccept" class="minimal-red">
+            Bằng việc đánh dấu chọn vào ô này, tôi xác nhận rằng tôi đã đọc, hiểu, chấp nhận và đồng ý với tất cả các điều khoản và điều kiện, các quy tắc và quy định như được nêu trong Sổ tay Phụ huynh / Học sinh VAS cho Năm học 2020-2021. Tôi cũng xác nhận rằng thỏa thuận trực tuyến này và sự chấp nhận của tôi là một thỏa thuận ràng buộc về mặt pháp lý mà tôi có với VAS cho Năm học 2020-2021.
+            <br />
+            By checking this box, I hereby confirm that I have read, understood, accepted and agreed to all the terms and conditions, rules and regulations as set herein the VAS Parent / Student Handbook for the School Year 2020-2021. I also confirm that this online agreement and acceptance of mine is a legally binding agreement I have with VAS for the School Year 2020-2021.
+
+        </label>
+    </p>
+</div>
+<div class="row" style="padding-bottom:10px;">
+    <div class="form-group">
+        <div class="col-lg-12 text-center">
+            <button type="button" id="accept" class="btn btn-success btn-lg btn-block"> Accept</button>
+        </div>
+    </div>
+</div>
+<div class="row" style="padding-bottom:10px;">
+    <div class="form-group">
+        <div class="col-lg-1 pull-right">
+            <a type="button" id="Download" class="btn btn-danger btn-block" href="~/handbook/Paren-Student Handbook SY20-21.pdf" download><i class="fa fa-download"></i> Download</a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        @if (Model.Files != null)
+        {
+            foreach (FileInfo f in Model.Files)
+            {
+                <img src="~/handbook-img/@f.Name" class="lazyload img-responsive">
+                <br />
+            }
+        }
+    </div>
+</div>
+
+<a href="#" id="toTopBtn" class="cd-top text-replace js-cd-top cd-top--is-visible cd-top--fade-out" data-abc="true"></a>
+<div class="clearfix"></div>
+<!--<div class="form-group">
+    <img class="img-responsive" src="~/handbook-img/handbook-page-001.jpg" />-->
+@*<iframe id="myFrame" width="100%" height="900px"></iframe>*@
+<!--</div>-->
+
+
+<script type="text/javascript">
+    $('#myFrame').attr('src', location.protocol + '//' + location.host+'/pdfjs-flipbook/web/viewer.html?file=/handbook/handbook.pdf#magazineMode=true');
+    //$('#myFrame').attr('src', window.location.host'http://localhost:52275/pdfjs-flipbook/web/viewer.html?file=/handbook/Parent-and-Student-Handbook-for-School-Year-2019-2020.pdf');
+
+    $('input[type="checkbox"].minimal-red, input[type="radio"].minimal-red').iCheck({
+        checkboxClass: 'icheckbox_minimal-red',
+        radioClass: 'iradio_minimal-red'
+    });
+
+    $("#accept").click(function () {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("handBookAccept", "Home")',
+            dataType: "json",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+            },
+            contentType: 'application/json',
+            traditional: true,
+            success: function (data) {
+                if (data.success) {
+                    swal(
+                        'Thank You !',
+                        data.message,
+                        'success'
+                    )
+                }
+                else {
+                    swal(
+                        'Oops !',
+                        data.message,
+                        'error'
+                    )
+                }
+            },
+            failure: function (response) {
+                ShowMessageError("Something went wrong !");
+            }
+        });
+    });
+
+    $('#accept').prop('disabled', true);
+
+    $('#chkAccept').on('ifChanged', function (event) {
+        if (this.checked) // if changed state is "CHECKED"
+        {
+            $('#accept').prop('disabled', false);
+        }
+        else {
+            $('#accept').prop('disabled', true);
+        }
+    });
+
+    $(function () {
+        $('.lazy').lazy();
+    });
+
+
+    $(document).ready(function () {
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 20) {
+                $('#toTopBtn').fadeIn();
+            } else {
+                $('#toTopBtn').fadeOut();
+            }
+        });
+
+        $('#toTopBtn').click(function () {
+            $("html, body").animate({
+                scrollTop: 0
+            }, 1000);
+            return false;
+        });
+    });
+</script>
